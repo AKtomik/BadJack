@@ -1,9 +1,38 @@
 ﻿
 namespace BadJack
 {
+	class Player
+	{
+		List<string> pile;
+		public int score;
+		string name;
+
+		public Player(string name = "no name guy")
+		{
+			this.pile = new List<string>();
+			this.score = 0;
+			this.name = name;
+		}
+
+		public void Draw(List<string> paquet)
+		{
+			string card = paquet.First();
+			pile.Add(card);
+			score += Game.pointsDictionary[card];
+			paquet.RemoveAt(0);
+		}
+
+		public void Display(bool showSecond = true, bool showFirst = true)
+		{
+			string firstStr = (showFirst) ? pile[pile.Count - 1] : "?";
+			string secondStr = (showSecond) ? pile[pile.Count - 2] : "?";
+			Console.WriteLine("{0} : {2} {1}", name, firstStr, secondStr);
+		}
+	}
+
 	class Game
 	{
-		static Dictionary<string, int> pointsDictionary = new Dictionary<string, int>()
+		public static Dictionary<string, int> pointsDictionary = new Dictionary<string, int>()
 		{
 			{"1", 1},
 			{"2", 2},
@@ -22,12 +51,15 @@ namespace BadJack
 
 		static void Main(string[] args)
 		{
+			// name
+			Console.WriteLine("donne ton nom ou c'est moi qui choisi");
+			string? humanName = Console.ReadLine();
+			if (humanName == null) humanName = "un humain trop nul";
+
 			// init
-			List<string> joueurH = new List<string>();
-			List<string> joueurO = new List<string>();
+			Player playerHuman = new Player(humanName);
+			Player playerComputer = new Player("ordinateur");
 			List<string> paquet = new List<string>();
-			int scoreH = 0;
-			int scoreO = 0;
 
 			// shuffle
 			for (int i = 0; i < 8; i++)
@@ -37,10 +69,11 @@ namespace BadJack
 			// give cards
 			for (int i = 0; i < 2; i++)
 			{
-				scoreH += Draw(paquet, joueurH);
-				scoreO += Draw(paquet, joueurO);
+				playerHuman.Draw(paquet);
+				playerComputer.Draw(paquet);
 			}
-			Display(joueurH, joueurO);
+			playerHuman.Display(true, true);
+			playerComputer.Display(true, true);
 
 			// turns
 			bool stopJoueur = false;
@@ -53,11 +86,11 @@ namespace BadJack
 				if (!stopJoueur)
 				{
 					Console.WriteLine("piocher ?\no - ui\nn - nan");
-					string choixJoueur = Console.ReadLine();
+					string? choixJoueur = Console.ReadLine();
 					if (choixJoueur?.ToUpper() == "O")
 					{
 						Console.WriteLine("[joueur] je pioche");
-						scoreH += Draw(paquet, joueurH);
+						playerHuman.Draw(paquet);
 					}
 					else
 					{
@@ -69,10 +102,10 @@ namespace BadJack
 				// computer's turn
 				if (!stopOrdi)
 				{
-					if (scoreO <= 15)
+					if (playerComputer.score <= 15)
 					{
 						Console.WriteLine("[ordi] je pioche");
-						scoreO += Draw(paquet, joueurO);
+						playerComputer.Draw(paquet);
 					}
 					else
 					{
@@ -82,24 +115,10 @@ namespace BadJack
 				}
 
 				// end the gmae
-				finPartie = (stopJoueur && stopOrdi) || scoreO > 20 || scoreH > 20; 
-				Display(joueurH, joueurO);
+				finPartie = (stopJoueur && stopOrdi) || playerComputer.score >= 21 || playerHuman.score >= 21;
+				playerHuman.Display(true, true);
+				playerComputer.Display(false, true);
 			}
-		}
-
-
-		static void Display(List<string> joueurH, List<string> joueurO)
-		{
-			Console.WriteLine("joueur : {0} {1}", joueurH[joueurH.Count - 2], joueurH[joueurH.Count - 1]);
-			Console.WriteLine("ordi : ? {0}", joueurO[joueurO.Count - 1]);
-		}
-
-		static int Draw(List<string> paquet, List<string> pile)
-		{
-			string card = paquet.First();
-			pile.Add(card);
-			paquet.RemoveAt(0);
-			return pointsDictionary[card];
 		}
 	}
 }
