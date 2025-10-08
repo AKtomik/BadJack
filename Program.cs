@@ -26,7 +26,7 @@ namespace BadJack
 		{
 			string firstStr = (showFirst) ? pile[pile.Count - 1] : "?";
 			string secondStr = (showSecond) ? pile[pile.Count - 2] : "?";
-			Console.WriteLine("{0} : {2} {1}", name, firstStr, secondStr);
+			Console.WriteLine("{0} : {2} {1} ({3} points)", name, firstStr, secondStr, score);
 		}
 	}
 
