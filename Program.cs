@@ -20,15 +20,25 @@ namespace BadJack
 		{
 			string card = paquet.First();
 			pile.Add(card);
-			if (card == "A" && willChoose)
+			if (card == "1")
 			{
 				Console.WriteLine("voilà un as pour {0}! Il vaut 1 ou 11?", name);
 				string? input;
-				while (true)
+				
+				if (willChoose)
 				{
-					input = Console.ReadLine();
-					if (input == "1" || input == "11") break;
-					Console.WriteLine("Saisir 1 ou 11");
+					while (true)
+					{
+						input = Console.ReadLine();
+						if (input == "1" || input == "11") break;
+						Console.WriteLine("Saisir 1 ou 11");
+					}
+				}
+				else
+				{
+					if (Game.random.Next(1) == 0) input = "11";
+					else input = "1";
+					Console.WriteLine(input);
 				}
 				score += int.Parse(input);
 			}
@@ -53,18 +63,19 @@ namespace BadJack
 		{
 			{"1", 1},
 			{"2", 2},
-			{"3", 3},
-			{"4", 4},
-			{"5", 5},
-			{"6", 6},
-			{"7", 7},
-			{"8", 8},
-			{"9", 9},
-			{"10", 10},
-			{"V", 10},
-			{"D", 10},
-			{"R", 10},
+			//{"3", 3},
+			//{"4", 4},
+			//{"5", 5},
+			//{"6", 6},
+			//{"7", 7},
+			//{"8", 8},
+			//{"9", 9},
+			//{"10", 10},
+			//{"V", 10},
+			//{"D", 10},
+			//{"R", 10},
 		};
+		public static Random random;
 
 		static void Main(string[] args)
 		{
@@ -75,8 +86,9 @@ namespace BadJack
 
 			// init
 			Player playerHuman = new Player(true, humanName);
-			Player playerComputer = new Player(true, "ordinateur");
+			Player playerComputer = new Player(false, "ordinateur");
 			List<string> paquet = new List<string>();
+			random = new Random(42);
 
 			// shuffle
 			for (int i = 0; i < 8; i++)
