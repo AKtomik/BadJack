@@ -6,12 +6,14 @@ namespace BadJack
 		List<string> pile;
 		public int score;
 		string name;
+		bool willChoose;
 
-		public Player(string name = "no name guy")
+		public Player(bool willChoose = false, string name = "no name guy")
 		{
 			this.pile = new List<string>();
 			this.score = 0;
 			this.name = name;
+			this.willChoose = willChoose;
 		}
 
 		public void Draw(List<string> paquet)
@@ -26,7 +28,7 @@ namespace BadJack
 		{
 			string firstStr = (showFirst) ? pile[pile.Count - 1] : "?";
 			string secondStr = (showSecond) ? pile[pile.Count - 2] : "?";
-			Console.WriteLine("{0} : {2} {1} ({3} points)", name, firstStr, secondStr, score);
+			Console.WriteLine("{0} : [{2}] [{1}] ({3} points)", name, firstStr, secondStr, score);
 		}
 	}
 
@@ -57,8 +59,8 @@ namespace BadJack
 			if (humanName == null || humanName == "") humanName = "un humain trop nul";
 
 			// init
-			Player playerHuman = new Player(humanName);
-			Player playerComputer = new Player("ordinateur");
+			Player playerHuman = new Player(true, humanName);
+			Player playerComputer = new Player(true, "ordinateur");
 			List<string> paquet = new List<string>();
 
 			// shuffle
@@ -79,6 +81,7 @@ namespace BadJack
 			bool stopJoueur = false;
 			bool stopOrdi = false;
 			bool finPartie = false;
+			string endMsg = "";
 
 			while (!finPartie)
 			{
@@ -122,8 +125,46 @@ namespace BadJack
 				playerComputer.Display(true, true);
 
 				// end the gmae
-				finPartie = (stopJoueur && stopOrdi) || playerComputer.score >= 21 || playerHuman.score >= 21;
+				bool looseComputer = playerComputer.score >= 21;
+				bool looseHuman = playerHuman.score >= 21;
+
+				if (looseComputer)
+				{
+					if (looseHuman)
+					{
+						endMsg = "L'ordi a dépassé 21, bien joué!";
+					}
+					else
+					{
+						endMsg = "Vous avez tous les deux dépassés 21...";
+					}
+					break;
+				}
+				else if (looseHuman)
+				{
+					endMsg = "Tu as dépassé 21, trop nul...";
+					break;
+				}
+				if (stopJoueur && stopOrdi)
+				{
+					if (playerComputer.score > playerHuman.score)
+					{
+						endMsg = "L'ordinateur t'as roulé dessus...";
+					}
+					else if (playerComputer.score < playerHuman.score)
+					{
+						endMsg = "Tu as roulé l'ordinateur! GG";
+					}
+					else
+					{
+						endMsg = "Personne n'a gangné...";
+					}
+					break;
+				}
 			}
+			Console.WriteLine("C'est fini!");
+			Thread.Sleep(2222);
+			Console.WriteLine(endMsg);
 		}
 	}
 }
