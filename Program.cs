@@ -54,7 +54,7 @@ namespace BadJack
 			// name
 			Console.WriteLine("donne ton nom ou c'est moi qui choisi");
 			string? humanName = Console.ReadLine();
-			if (humanName == null) humanName = "un humain trop nul";
+			if (humanName == null || humanName == "") humanName = "un humain trop nul";
 
 			// init
 			Player playerHuman = new Player(humanName);
@@ -85,7 +85,9 @@ namespace BadJack
 				// player's turn
 				if (!stopJoueur)
 				{
+					Thread.Sleep(1111);
 					Console.WriteLine("piocher ?\no - ui\nn - nan");
+					Thread.Sleep(666);
 					string? choixJoueur = Console.ReadLine();
 					if (choixJoueur?.ToUpper() == "O")
 					{
@@ -98,10 +100,13 @@ namespace BadJack
 						stopJoueur = true;
 					}
 				}
+				Thread.Sleep(1111);
+				playerHuman.Display(true, true);
 
 				// computer's turn
 				if (!stopOrdi)
 				{
+					Thread.Sleep(666);
 					if (playerComputer.score <= 15)
 					{
 						Console.WriteLine("[ordi] je pioche");
@@ -113,11 +118,11 @@ namespace BadJack
 						stopOrdi = true;
 					}
 				}
+				Thread.Sleep(1111);
+				playerComputer.Display(true, true);
 
 				// end the gmae
 				finPartie = (stopJoueur && stopOrdi) || playerComputer.score >= 21 || playerHuman.score >= 21;
-				playerHuman.Display(true, true);
-				playerComputer.Display(false, true);
 			}
 		}
 	}
