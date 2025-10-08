@@ -24,7 +24,7 @@ namespace BadJack
 			{
 				Console.WriteLine("voilà un as pour {0}! Il vaut 1 ou 11?", name);
 				string? input;
-				
+
 				if (willChoose)
 				{
 					while (true)
@@ -63,17 +63,17 @@ namespace BadJack
 		{
 			{"1", 1},
 			{"2", 2},
-			//{"3", 3},
-			//{"4", 4},
-			//{"5", 5},
-			//{"6", 6},
-			//{"7", 7},
-			//{"8", 8},
-			//{"9", 9},
-			//{"10", 10},
-			//{"V", 10},
-			//{"D", 10},
-			//{"R", 10},
+			{"3", 3},
+			{"4", 4},
+			{"5", 5},
+			{"6", 6},
+			{"7", 7},
+			{"8", 8},
+			{"9", 9},
+			{"10", 10},
+			{"V", 10},
+			{"D", 10},
+			{"R", 10},
 		};
 		public static Random random;
 
