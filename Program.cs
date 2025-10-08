@@ -20,7 +20,22 @@ namespace BadJack
 		{
 			string card = paquet.First();
 			pile.Add(card);
-			score += Game.pointsDictionary[card];
+			if (card == "A" && willChoose)
+			{
+				Console.WriteLine("voilà un as pour {0}! Il vaut 1 ou 11?", name);
+				string? input;
+				while (true)
+				{
+					input = Console.ReadLine();
+					if (input == "1" || input == "11") break;
+					Console.WriteLine("Saisir 1 ou 11");
+				}
+				score += int.Parse(input);
+			}
+			else
+			{
+				score += Game.pointsDictionary[card];
+			}
 			paquet.RemoveAt(0);
 		}
 
