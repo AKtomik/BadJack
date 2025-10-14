@@ -21,12 +21,12 @@ namespace BadJack
 			string card = paquet.First();
 			pile.Add(card);
 			if (card == "1")
-			{
+			{//ace score pick
 				Console.WriteLine("voilà un as pour {0}! Il vaut 1 ou 11?", name);
 				string? input;
 
 				if (willChoose)
-				{
+				{//player can choose
 					while (true)
 					{
 						input = Console.ReadLine();
@@ -35,7 +35,7 @@ namespace BadJack
 					}
 				}
 				else
-				{
+				{//is random
 					if (Game.random?.Next(1) == 0) input = "11";
 					else input = "1";
 					Console.WriteLine(input);
@@ -68,6 +68,23 @@ namespace BadJack
 
 	class Game
 	{
+		// function to get input as int without crash
+		static int IntPut(int inputMinIncluded, int inputMaxIncluded, int? defaultValue = null)
+		{
+			while (true)
+			{
+				string? inputString = Console.ReadLine();
+				int inputInt;
+				if (defaultValue != null && (inputString == null || inputString == ""))
+					return (int)defaultValue;
+				else if (int.TryParse(inputString, out inputInt) && inputInt >= inputMinIncluded && inputInt <= inputMaxIncluded)
+					return inputInt;
+				else
+					Console.WriteLine("donne un nombre valide ({0}-{1})", inputMinIncluded, inputMaxIncluded);
+			}
+		}
+
+		// the score dico
 		public static Dictionary<string, int> pointsDictionary = new Dictionary<string, int>()
 		{
 			{"1", 1},
@@ -84,7 +101,9 @@ namespace BadJack
 			{"D", 10},
 			{"R", 10},
 		};
-		public static Random? random;
+
+
+		public static Random random = new Random();
 
 		static void Main(string[] args)
 		{
@@ -93,22 +112,37 @@ namespace BadJack
 			string? humanName = Console.ReadLine();
 			if (humanName == null || humanName == "") humanName = "un humain trop nul";
 
+			// cards
+			//Console.WriteLine("voici le jeu de cartes : (0 = 10)");
+			List<string> paquet = pointsDictionary.Keys.ToList();
+			//Console.WriteLine(paquet.ToString());
+			//Console.WriteLine("entrée pour valider, ou en saisir un nouveau");
+			//int paquetAmount = Game.IntPut(0, 2048, 2);
+
+			Console.WriteLine("choisir le nombre de couleurs (4 par défaut)");
+			int colorAmount = IntPut(0, 42, 2);
+			
+			Console.WriteLine("choisir le nombre de paquets (un paquet = {0} couleurs) (2 par défaut)", colorAmount);
+			int paquetAmount = IntPut(0, 42, 2);
+
+			// start
+			Console.WriteLine("///////////////////\n///  blackjack  ///\n///////////////////\n");
+
 			// init
-			Player playerHuman = new Player(true, humanName);
-			Player playerComputer = new Player(false, "ordinateur");
-			List<string> paquet = new List<string>();
-			random = new Random(42);
+			Player playerHuman = new(true, humanName);
+			Player playerComputer = new(false, "ordinateur");
+			List<string> cards = [];
 
 			// shuffle
-			for (int i = 0; i < 8; i++)
-				paquet.AddRange(pointsDictionary.Keys.ToList());
-			List<string> paquetRandom = paquet.OrderBy(x => Guid.NewGuid()).ToList();
+			for (int i = 0; i < paquetAmount*colorAmount; i++)
+				cards.AddRange(paquet);
+			cards = cards.OrderBy(x => Guid.NewGuid()).ToList();
 
 			// give cards
 			for (int i = 0; i < 2; i++)
 			{
-				playerHuman.Draw(paquet);
-				playerComputer.Draw(paquet);
+				playerHuman.Draw(cards);
+				playerComputer.Draw(cards);
 			}
 			playerHuman.Display(true);
 			playerComputer.Display(false);
@@ -116,10 +150,30 @@ namespace BadJack
 			// turns
 			bool stopJoueur = false;
 			bool stopOrdi = false;
-			bool finPartie = false;
+			bool blackjack = false;
 			string endMsg = "";
 
-			while (!finPartie)
+			// blackjack checks
+			if (playerHuman.score == 21 || playerComputer.score == 21)
+			{
+				blackjack = true;
+				bool jackComputer = playerComputer.score == 21;
+				bool jackHuman = playerHuman.score == 21;
+				if (jackComputer && jackHuman)
+				{
+					endMsg = "L'ordi et toi avez blackjack!!!! vous avez trichés??";
+				}
+				else if (jackComputer)
+				{
+					endMsg = "L'ordi a blackjack!! dommage pour toi...";
+				}
+				else if (jackHuman)
+				{
+					endMsg = "Tu as blackjack!! bien joué!";
+				}
+			}
+
+			if (!blackjack) while (true)
 			{
 				// player's turn
 				if (!stopJoueur)
@@ -131,7 +185,7 @@ namespace BadJack
 					if (choixJoueur?.ToUpper() == "O")
 					{
 						Console.WriteLine("[joueur] je pioche");
-						playerHuman.Draw(paquet);
+						playerHuman.Draw(cards);
 					}
 					else
 					{
@@ -142,6 +196,12 @@ namespace BadJack
 				Thread.Sleep(1111);
 				playerHuman.Display(true);
 
+				if (paquet.Count == 0) 
+				{
+					Console.WriteLine("apu de carte :(");
+					break;
+				}
+
 				// computer's turn
 				if (!stopOrdi)
 				{
@@ -149,7 +209,7 @@ namespace BadJack
 					if (playerComputer.score <= 15)
 					{
 						Console.WriteLine("[ordi] je pioche");
-						playerComputer.Draw(paquet);
+						playerComputer.Draw(cards);
 					}
 					else
 					{
@@ -163,7 +223,7 @@ namespace BadJack
 				// end the gmae
 				bool looseComputer = playerComputer.score >= 21;
 				bool looseHuman = playerHuman.score >= 21;
-
+				
 				if (looseComputer)
 				{
 					if (looseHuman)
@@ -174,35 +234,47 @@ namespace BadJack
 					{
 						endMsg = "Vous avez tous les deux dépassés 21...";
 					}
-					break;
+					break;//finish game
 				}
-				else if (looseHuman)
+
+				if (looseHuman)
 				{
 					endMsg = "Tu as dépassé 21, trop nul...";
-					break;
+					break;//finish game
 				}
+
 				if (stopJoueur && stopOrdi)
 				{
-					if (playerComputer.score > playerHuman.score)
-					{
-						endMsg = "L'ordinateur t'as roulé dessus...";
-					}
-					else if (playerComputer.score < playerHuman.score)
-					{
-						endMsg = "Tu as roulé l'ordinateur! GG";
-					}
-					else
-					{
-						endMsg = "Personne n'a gangné...";
-					}
+					break;//finish game
+				}
+				
+				if (paquet.Count == 0) 
+				{
+					Console.WriteLine("apu de carte :(");
 					break;
+				}
+			}
+
+			if (endMsg == "")
+			{//happening when both stop or no more cards
+				if (playerComputer.score > playerHuman.score)
+				{
+					endMsg = "L'ordinateur t'as roulé dessus...";
+				}
+				else if (playerComputer.score < playerHuman.score)
+				{
+					endMsg = "Tu as roulé l'ordinateur! GG";
+				}
+				else
+				{
+					endMsg = "Personne n'a gangné...";
 				}
 			}
 			Console.WriteLine("C'est fini!");
 			Thread.Sleep(2222);
-			playerHuman.Display(true);
-			playerComputer.Display(true);
-			Thread.Sleep(666);
+			//playerHuman.Display(true);
+			//playerComputer.Display(true);
+			//Thread.Sleep(666);
 			Console.WriteLine(endMsg);
 		}
 	}
