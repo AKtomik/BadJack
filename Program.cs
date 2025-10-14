@@ -22,12 +22,20 @@ namespace BadJack
 
 		public void Draw(List<string> paquet)
 		{
+			Thread.Sleep(333);
+			if (paquet.Count == 0)
+			{
+				Game.SetConsoleColor(ConsoleColor.DarkGray);
+				Console.WriteLine("Le paquet est vide");
+				return;
+			}
+
 			string card = paquet.First();
 			pile.Add(card);
 			if (card == "1")
 			{//ace score pick
 				Game.SetConsoleColor(ConsoleColor.Yellow);
-				Console.WriteLine("voilà un as pour {0}!", name);
+				Console.Write("voilà un as pour {0}!", name);
 				Game.SetConsoleColor(ConsoleColor.DarkGray);
 				Console.WriteLine(" Il vaut 1 ou 11?");
 				string? input;
@@ -154,7 +162,7 @@ namespace BadJack
 				SetConsoleColor(ConsoleColor.Blue);
 				Console.WriteLine(string.Join(" ", paquet));
 				SetConsoleColor(ConsoleColor.DarkGray);
-				Console.WriteLine("entrée pour valider, ou en saisir un nouveau");
+				Console.WriteLine("<entrée> pour valider, ou en saisir un nouveau");
 				SetConsoleColor(ConsoleColor.Cyan);
 				string? inputed = Console.ReadLine();
 				// valid if nothing
@@ -197,7 +205,9 @@ namespace BadJack
 
 			// start
 			SetConsoleColor(ConsoleColor.White);
-			Console.WriteLine("///////////////////\n///  blackjack  ///\n///////////////////\n");
+			Console.WriteLine("\n///////////////////\n///  blackjack  ///\n///////////////////\n");
+			SetConsoleColor(ConsoleColor.White);
+			Console.WriteLine("Chacun pioche 2 cartes...");
 
 			// init
 			Player playerHuman = new(true, humanName, ConsoleColor.Cyan);
@@ -215,39 +225,85 @@ namespace BadJack
 				playerHuman.Draw(cards);
 				playerComputer.Draw(cards);
 			}
-			playerHuman.Display(true);
-			playerComputer.Display(false);
 
 			// turns
 			bool stopJoueur = false;
 			bool stopOrdi = false;
-			bool blackjack = false;
 			string endMsg = "";
 			ConsoleColor? endMsgColor = null;
 
 			// blackjack checks
 			if (playerHuman.score == 21 || playerComputer.score == 21)
 			{
-				blackjack = true;
 				bool jackComputer = playerComputer.score == 21;
 				bool jackHuman = playerHuman.score == 21;
+				SetConsoleColor(ConsoleColor.Black, ConsoleColor.Yellow);
+				Console.Write(" ! BLACKJACK ! ");
+				ClearConsoleColor();
+				Console.WriteLine("");
 				if (jackComputer && jackHuman)
 				{
+					endMsgColor = ConsoleColor.Yellow;
 					endMsg = "L'ordi et toi avez blackjack!!!! vous avez trichés??";
 				}
 				else if (jackComputer)
 				{
+					endMsgColor = ConsoleColor.Red;
 					endMsg = "L'ordi a blackjack!! dommage pour toi...";
 				}
 				else if (jackHuman)
 				{
+					endMsgColor = ConsoleColor.Green;
 					endMsg = "Tu as blackjack!! bien joué!";
 				}
 			}
 
-			if (!blackjack) 
+			else
+			{
+				playerHuman.Display(true);
+				playerComputer.Display(false);
 				while (true)
 				{
+					// endgame triggers
+					bool looseComputer = playerComputer.score >= 21;
+					bool looseHuman = playerHuman.score >= 21;
+					
+					if (looseComputer)
+					{
+						if (looseHuman)
+						{
+							endMsgColor = ConsoleColor.Yellow;
+							endMsg = "Vous avez tous les deux dépassés 21...";
+						}
+						else
+						{
+							endMsgColor = ConsoleColor.Green;
+							endMsg = "L'ordi a dépassé 21, bien joué!";
+						}
+						break;//finish game
+					}
+
+					if (looseHuman)
+					{
+						endMsgColor = ConsoleColor.Red;
+						endMsg = "Tu as dépassé 21, trop nul...";
+						break;//finish game
+					}
+
+					if (stopJoueur && stopOrdi)
+					{
+						break;//finish game
+					}
+					
+					// no cards
+					if (cards.Count == 0)
+					{
+						ClearConsoleColor();
+						Console.WriteLine("apu de carte :(");
+						break;
+					}
+
+
 					// player's turn
 					if (!stopJoueur)
 					{
@@ -274,7 +330,8 @@ namespace BadJack
 					Thread.Sleep(1111);
 					playerHuman.Display(true);
 
-					if (paquet.Count == 0) 
+					// no cards
+					if (cards.Count == 0) 
 					{
 						SetConsoleColor(ConsoleColor.White);
 						Console.WriteLine("apu de carte :(");
@@ -299,45 +356,8 @@ namespace BadJack
 					}
 					Thread.Sleep(1111);
 					playerComputer.Display(false);
-
-					// end the gmae
-					bool looseComputer = playerComputer.score >= 21;
-					bool looseHuman = playerHuman.score >= 21;
-					
-					if (looseComputer)
-					{
-						if (looseHuman)
-						{
-							endMsgColor = ConsoleColor.Green;
-							endMsg = "L'ordi a dépassé 21, bien joué!";
-						}
-						else
-						{
-							endMsgColor = ConsoleColor.Yellow;
-							endMsg = "Vous avez tous les deux dépassés 21...";
-						}
-						break;//finish game
-					}
-
-					if (looseHuman)
-					{
-						endMsgColor = ConsoleColor.Red;
-						endMsg = "Tu as dépassé 21, trop nul...";
-						break;//finish game
-					}
-
-					if (stopJoueur && stopOrdi)
-					{
-						break;//finish game
-					}
-					
-					if (paquet.Count == 0)
-					{
-						ClearConsoleColor();
-						Console.WriteLine("apu de carte :(");
-						break;
-					}
 				}
+			}
 
 			if (endMsg == "")
 			{//happening when both stop or no more cards
@@ -358,11 +378,11 @@ namespace BadJack
 				}
 			}
 			ClearConsoleColor();
-			Console.WriteLine("C'est fini!");
+			Console.WriteLine("\nC'est fini!");
 			Thread.Sleep(2222);
-			//playerHuman.Display(true);
-			//playerComputer.Display(true);
-			//Thread.Sleep(666);
+			playerHuman.Display(true);
+			playerComputer.Display(true);
+			Thread.Sleep(666);
 			SetConsoleColor(endMsgColor);
 			Console.WriteLine(endMsg);
 		}
