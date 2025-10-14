@@ -113,11 +113,32 @@ namespace BadJack
 			if (humanName == null || humanName == "") humanName = "un humain trop nul";
 
 			// cards
-			//Console.WriteLine("voici le jeu de cartes : (0 = 10)");
+			Console.WriteLine("voici le jeu de cartes :");
+			List<string> aviableCards = pointsDictionary.Keys.ToList();
 			List<string> paquet = pointsDictionary.Keys.ToList();
-			//Console.WriteLine(paquet.ToString());
-			//Console.WriteLine("entrée pour valider, ou en saisir un nouveau");
-			//int paquetAmount = Game.IntPut(0, 2048, 2);
+			while (true)
+			{
+				Console.WriteLine(string.Join(" ", paquet));
+				Console.WriteLine("entrée pour valider, ou en saisir un nouveau");
+				string? inputed = Console.ReadLine();
+				if (inputed == null || inputed == "") break;
+				List<string> paquetProposed = [.. inputed.Split(" ")];
+				bool valid = true;
+				paquetProposed.RemoveAll(v => v == "" );
+				foreach (string v in paquetProposed)
+				{
+					if (!aviableCards.Contains(v))
+					{
+						Console.WriteLine("la carte [{0}] n'existe pas", v);
+						valid = false;
+					}
+				}
+				if (valid)
+				{
+					paquet = paquetProposed;
+					Console.WriteLine("nouveau paquet :");
+				}
+			}
 
 			Console.WriteLine("choisir le nombre de couleurs (4 par défaut)");
 			int colorAmount = IntPut(0, 42, 2);
