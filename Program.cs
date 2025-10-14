@@ -199,11 +199,226 @@ namespace BadJack
 			if (foreground != null) Console.ForegroundColor = (ConsoleColor)foreground;
 			if (background != null) Console.BackgroundColor = (ConsoleColor)background;
 		}
-		
+
 		// just an alias
 		public static void ClearConsole()
 		{
 			SetConsole();
+		}
+	}
+
+	class RoundEnd
+	{
+		public ConsoleColor color;
+		public string message;
+		public double factor;
+
+		public RoundEnd(double factor, ConsoleColor color, string message)
+		{
+			this.color = color;
+			this.message = message;
+			this.factor = factor;
+		}
+	};
+
+
+	class Round
+	{
+
+		// init
+		Player playerHuman;
+		Player playerComputer;
+		List<Card> cards;
+
+		public Round()
+		{
+			// init
+			playerHuman = new(true, Settings.humanName, ConsoleColor.Cyan);
+			playerComputer = new(false, "ordinateur", ConsoleColor.Blue);
+			cards = [];
+		}
+
+		public double Play()
+		{
+			// shuffle
+			for (int i = 0; i < Settings.deckColorAmount * Settings.deckPileAmount; i++)
+			{
+				List<Card> cardsColor = Settings.deckComposition.ConvertAll(v => new Card(v, Settings.globalSuits[i]));
+				cards.AddRange(cardsColor);
+			}
+			cards = cards.OrderBy(x => Guid.NewGuid()).ToList();
+			Color.SetConsole(ConsoleColor.White);
+			Console.WriteLine("Il y a {0} cartes dans le paquet.", cards.Count);
+
+			// start
+			Color.SetConsole(ConsoleColor.White);
+			Console.WriteLine("\n///////////////////\n///  blackjack  ///\n///////////////////\n");
+			Color.SetConsole(ConsoleColor.White);
+			Console.WriteLine("Chacun pioche 2 cartes...");
+
+			// give cards
+			for (int i = 0; i < 2; i++)
+			{
+				playerHuman.Draw(cards);
+				playerComputer.Draw(cards);
+			}
+
+			RoundEnd endReslut = Loop();
+
+			Color.ClearConsole();
+			Console.WriteLine("\nC'est fini!");
+			Thread.Sleep(2222);
+			playerHuman.Display(true);
+			playerComputer.Display(true);
+			Thread.Sleep(666);
+			Color.SetConsole(endReslut.color);
+			Console.WriteLine(endReslut.message);
+			return endReslut.factor;
+		}
+
+		RoundEnd Loop()
+		{
+			// turns
+			bool stopJoueur = false;
+			bool stopOrdi = false;
+
+			// blackjack checks
+			bool jackComputer = playerComputer.score == 21;
+			bool jackHuman = playerHuman.score == 21;
+			if (jackComputer || jackHuman)
+			{
+				Color.SetConsole(ConsoleColor.Black, ConsoleColor.Yellow);
+				Console.Write(" ! BLACKJACK ! ");
+				Color.ClearConsole();
+				Console.WriteLine("");
+				if (jackComputer && jackHuman)
+				{
+					return new RoundEnd(1, ConsoleColor.Yellow, "L'ordi et toi avez blackjack!!!! vous avez trichés??");
+				}
+				else if (jackComputer)
+				{
+					return new RoundEnd(0, ConsoleColor.Red, "L'ordi a blackjack!! dommage pour toi...");
+				}
+				else if (jackHuman)
+				{
+					return new RoundEnd(2.5, ConsoleColor.Green, "Tu as blackjack!! bien joué!");
+				}
+			}
+			else
+			{
+				playerHuman.Display(true);
+				playerComputer.Display(false);
+				while (true)
+				{
+					// endgame triggers
+					bool looseComputer = playerComputer.score >= 21;
+					bool looseHuman = playerHuman.score >= 21;
+
+					if (looseComputer)
+					{
+						if (looseHuman)
+						{
+							return new RoundEnd(1, ConsoleColor.Yellow, "Vous avez tous les deux dépassés 21...");
+						}
+						else
+						{
+							return new RoundEnd(2, ConsoleColor.Green, "L'ordi a dépassé 21, bien joué!");
+						}
+					}
+
+					if (looseHuman)
+					{
+						return new RoundEnd(0, ConsoleColor.Red, "Tu as dépassé 21, trop nul...");
+					}
+
+					if (stopJoueur && stopOrdi)
+					{
+						return CalculateNearestEnd();
+					}
+
+					// no cards
+					if (cards.Count == 0)
+					{
+						Color.ClearConsole();
+						Console.WriteLine("apu de carte :(");
+						return CalculateNearestEnd();
+					}
+
+
+					// player's turn
+					if (!stopJoueur)
+					{
+						Thread.Sleep(1111);
+
+						Color.ClearConsole();
+						Console.WriteLine("piocher ?");
+						Color.SetConsole(ConsoleColor.DarkGray);
+						Console.WriteLine("o - ui\nn - nan");
+						Thread.Sleep(666);
+						Color.SetConsole(ConsoleColor.Cyan);
+						string? choixJoueur = Console.ReadLine();
+						if (choixJoueur?.ToUpper() == "O")
+						{
+							Console.WriteLine("[joueur] je pioche");
+							playerHuman.Draw(cards);
+						}
+						else
+						{
+							Console.WriteLine("[joueur] je m'arrête");
+							stopJoueur = true;
+						}
+					}
+					Thread.Sleep(1111);
+					playerHuman.Display(true);
+
+					// no cards
+					if (cards.Count == 0)
+					{
+						Color.SetConsole(ConsoleColor.White);
+						Console.WriteLine("apu de carte :(");
+						return CalculateNearestEnd();
+					}
+
+					// computer's turn
+					if (!stopOrdi)
+					{
+						Thread.Sleep(666);
+						Color.SetConsole(ConsoleColor.Blue);
+						if (playerComputer.score <= 15)
+						{
+							Console.WriteLine("[ordi] je pioche");
+							playerComputer.Draw(cards);
+						}
+						else
+						{
+							Console.WriteLine("[ordi] je m'arrête");
+							stopOrdi = true;
+						}
+					}
+					Thread.Sleep(1111);
+					playerComputer.Display(false);
+				}
+			}
+			// will never happend
+			return CalculateNearestEnd();
+		}
+
+		RoundEnd CalculateNearestEnd()
+		{//happening when both stop or no more cards
+			int playerComputerDiff = Math.Abs(playerComputer.score - 21);
+			int playerHumanDiff = Math.Abs(playerHuman.score - 21);
+			if (playerComputerDiff < playerHumanDiff)
+			{
+				return new RoundEnd(0, ConsoleColor.Red, "L'ordinateur t'as roulé dessus...");
+			}
+			else if (playerComputerDiff > playerHumanDiff)
+			{
+				return new RoundEnd(2, ConsoleColor.Green, "Tu as roulé l'ordinateur! GG");
+			}
+			else
+			{
+				return new RoundEnd(1, ConsoleColor.Yellow, "Personne n'a gangné...");
+			}
 		}
 	}
 
@@ -300,194 +515,8 @@ namespace BadJack
 		static void Main(string[] args)
 		{
 			SetSettings();
-
-			// init
-			Player playerHuman = new(true, Settings.humanName, ConsoleColor.Cyan);
-			Player playerComputer = new(false, "ordinateur", ConsoleColor.Blue);
-			List<Card> cards = [];
-
-			// shuffle
-			for (int i = 0; i < Settings.deckColorAmount * Settings.deckPileAmount; i++)
-			{
-				List<Card> cardsColor = Settings.deckComposition.ConvertAll(v => new Card(v, Settings.globalSuits[i]));
-				cards.AddRange(cardsColor);
-			}
-			cards = cards.OrderBy(x => Guid.NewGuid()).ToList();
-			Color.SetConsole(ConsoleColor.White);
-			Console.WriteLine("Il y a {0} cartes dans le paquet.", cards.Count);
-
-			// start
-			Color.SetConsole(ConsoleColor.White);
-			Console.WriteLine("\n///////////////////\n///  blackjack  ///\n///////////////////\n");
-			Color.SetConsole(ConsoleColor.White);
-			Console.WriteLine("Chacun pioche 2 cartes...");
-
-			// give cards
-			for (int i = 0; i < 2; i++)
-			{
-				playerHuman.Draw(cards);
-				playerComputer.Draw(cards);
-			}
-
-			// turns
-			bool stopJoueur = false;
-			bool stopOrdi = false;
-			string endMsg = "";
-			ConsoleColor? endMsgColor = null;
-
-			// blackjack checks
-			if (playerHuman.score == 21 || playerComputer.score == 21)
-			{
-				bool jackComputer = playerComputer.score == 21;
-				bool jackHuman = playerHuman.score == 21;
-				Color.SetConsole(ConsoleColor.Black, ConsoleColor.Yellow);
-				Console.Write(" ! BLACKJACK ! ");
-				Color.ClearConsole();
-				Console.WriteLine("");
-				if (jackComputer && jackHuman)
-				{
-					endMsgColor = ConsoleColor.Yellow;
-					endMsg = "L'ordi et toi avez blackjack!!!! vous avez trichés??";
-				}
-				else if (jackComputer)
-				{
-					endMsgColor = ConsoleColor.Red;
-					endMsg = "L'ordi a blackjack!! dommage pour toi...";
-				}
-				else if (jackHuman)
-				{
-					endMsgColor = ConsoleColor.Green;
-					endMsg = "Tu as blackjack!! bien joué!";
-				}
-			}
-
-			else
-			{
-				playerHuman.Display(true);
-				playerComputer.Display(false);
-				while (true)
-				{
-					// endgame triggers
-					bool looseComputer = playerComputer.score >= 21;
-					bool looseHuman = playerHuman.score >= 21;
-
-					if (looseComputer)
-					{
-						if (looseHuman)
-						{
-							endMsgColor = ConsoleColor.Yellow;
-							endMsg = "Vous avez tous les deux dépassés 21...";
-						}
-						else
-						{
-							endMsgColor = ConsoleColor.Green;
-							endMsg = "L'ordi a dépassé 21, bien joué!";
-						}
-						break;//finish game
-					}
-
-					if (looseHuman)
-					{
-						endMsgColor = ConsoleColor.Red;
-						endMsg = "Tu as dépassé 21, trop nul...";
-						break;//finish game
-					}
-
-					if (stopJoueur && stopOrdi)
-					{
-						break;//finish game
-					}
-
-					// no cards
-					if (cards.Count == 0)
-					{
-						Color.ClearConsole();
-						Console.WriteLine("apu de carte :(");
-						break;
-					}
-
-
-					// player's turn
-					if (!stopJoueur)
-					{
-						Thread.Sleep(1111);
-
-						Color.ClearConsole();
-						Console.WriteLine("piocher ?");
-						Color.SetConsole(ConsoleColor.DarkGray);
-						Console.WriteLine("o - ui\nn - nan");
-						Thread.Sleep(666);
-						Color.SetConsole(ConsoleColor.Cyan);
-						string? choixJoueur = Console.ReadLine();
-						if (choixJoueur?.ToUpper() == "O")
-						{
-							Console.WriteLine("[joueur] je pioche");
-							playerHuman.Draw(cards);
-						}
-						else
-						{
-							Console.WriteLine("[joueur] je m'arrête");
-							stopJoueur = true;
-						}
-					}
-					Thread.Sleep(1111);
-					playerHuman.Display(true);
-
-					// no cards
-					if (cards.Count == 0)
-					{
-						Color.SetConsole(ConsoleColor.White);
-						Console.WriteLine("apu de carte :(");
-						break;
-					}
-
-					// computer's turn
-					if (!stopOrdi)
-					{
-						Thread.Sleep(666);
-						Color.SetConsole(ConsoleColor.Blue);
-						if (playerComputer.score <= 15)
-						{
-							Console.WriteLine("[ordi] je pioche");
-							playerComputer.Draw(cards);
-						}
-						else
-						{
-							Console.WriteLine("[ordi] je m'arrête");
-							stopOrdi = true;
-						}
-					}
-					Thread.Sleep(1111);
-					playerComputer.Display(false);
-				}
-			}
-
-			if (endMsg == "")
-			{//happening when both stop or no more cards
-				if (playerComputer.score > playerHuman.score)
-				{
-					endMsgColor = ConsoleColor.Red;
-					endMsg = "L'ordinateur t'as roulé dessus...";
-				}
-				else if (playerComputer.score < playerHuman.score)
-				{
-					endMsgColor = ConsoleColor.Green;
-					endMsg = "Tu as roulé l'ordinateur! GG";
-				}
-				else
-				{
-					endMsgColor = ConsoleColor.Yellow;
-					endMsg = "Personne n'a gangné...";
-				}
-			}
-			Color.ClearConsole();
-			Console.WriteLine("\nC'est fini!");
-			Thread.Sleep(2222);
-			playerHuman.Display(true);
-			playerComputer.Display(true);
-			Thread.Sleep(666);
-			Color.SetConsole(endMsgColor);
-			Console.WriteLine(endMsg);
+			Round round = new();
+			double victory = round.Play();
 		}
 	}
 }
