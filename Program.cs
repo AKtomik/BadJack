@@ -36,7 +36,7 @@ namespace BadJack
 				}
 				else
 				{
-					if (Game.random.Next(1) == 0) input = "11";
+					if (Game.random?.Next(1) == 0) input = "11";
 					else input = "1";
 					Console.WriteLine(input);
 				}
@@ -49,11 +49,20 @@ namespace BadJack
 			paquet.RemoveAt(0);
 		}
 
-		public void Display(bool showSecond = true, bool showFirst = true)
+		public void Display(bool showFirst = true)
 		{
-			string firstStr = (showFirst) ? pile[pile.Count - 1] : "?";
-			string secondStr = (showSecond) ? pile[pile.Count - 2] : "?";
-			Console.WriteLine("{0} : [{2}] [{1}] ({3} points)", name, firstStr, secondStr, score);
+			int startIndex = 0;
+			string arrayStr = "";
+			if (!showFirst)
+			{
+				arrayStr += "[?] ";
+				startIndex = 1;
+			}
+			for (int i = pile.Count - 1; i >= startIndex; i--)
+			{
+				arrayStr += "["+pile[i]+"] ";
+			}
+			Console.WriteLine("{0} : {1}({2} points)", name, arrayStr, score);
 		}
 	}
 
@@ -75,7 +84,7 @@ namespace BadJack
 			{"D", 10},
 			{"R", 10},
 		};
-		public static Random random;
+		public static Random? random;
 
 		static void Main(string[] args)
 		{
@@ -101,8 +110,8 @@ namespace BadJack
 				playerHuman.Draw(paquet);
 				playerComputer.Draw(paquet);
 			}
-			playerHuman.Display(true, true);
-			playerComputer.Display(true, true);
+			playerHuman.Display(true);
+			playerComputer.Display(false);
 
 			// turns
 			bool stopJoueur = false;
@@ -131,7 +140,7 @@ namespace BadJack
 					}
 				}
 				Thread.Sleep(1111);
-				playerHuman.Display(true, true);
+				playerHuman.Display(true);
 
 				// computer's turn
 				if (!stopOrdi)
@@ -149,7 +158,7 @@ namespace BadJack
 					}
 				}
 				Thread.Sleep(1111);
-				playerComputer.Display(true, true);
+				playerComputer.Display(false);
 
 				// end the gmae
 				bool looseComputer = playerComputer.score >= 21;
@@ -191,6 +200,9 @@ namespace BadJack
 			}
 			Console.WriteLine("C'est fini!");
 			Thread.Sleep(2222);
+			playerHuman.Display(true);
+			playerComputer.Display(true);
+			Thread.Sleep(666);
 			Console.WriteLine(endMsg);
 		}
 	}
