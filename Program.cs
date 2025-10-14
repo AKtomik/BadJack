@@ -1,8 +1,13 @@
-﻿
+﻿using System;
+using System.Runtime.InteropServices;
+using BadJack;
+
 namespace BadJack
 {
 	class Settings
 	{
+		// here if you want to change basic blackjack rule
+
 		// here if you want to add a card
 		public static Dictionary<string, int> CardsAndPoints = new Dictionary<string, int>()
 		{
@@ -20,7 +25,7 @@ namespace BadJack
 			{"D", 10},
 			{"R", 10},
 		};
-		
+
 		// here if you want change cards suits
 		public static List<CardSuit> globalSuits =
 		[
@@ -39,13 +44,28 @@ namespace BadJack
 			new("☠", ConsoleColor.Black, ConsoleColor.White),
 		];
 
-		//
+		// settings you can edit in terminal
 		public static List<string> deckComposition = CardsAndPoints.Keys.ToList();
-
 		public static string humanName = "un humain trop nul";
-		
 		public static int deckColorAmount = 4;
 		public static int deckPileAmount = 2;
+
+		// other custom settings
+		public static double deptActiviationFactor = 0;
+		public static int deptActiviationAdd = 10;
+		public static double deptIntrestFactor = 0.05;
+		public static int deptIntrestAdd = 0;
+		public static List<string> deptMessages = [
+			"tu veux partir? tu n'as qu'à pas être PAUVRE !",
+			"tu dois {0}$ à la banque, par le droit d'abandonner !",
+			"il est illégal de partir, tu dois {0}$ à la banque !",
+			"rembourse les {0}$ que tu as empruntés avant !",
+			"tu as devoir gamble jusqu'à rembourser {0}$ !",
+			"tu n'as pas le droit de partir, rembourse les {0}$ !",
+			"règle tes dettes avant de partir, il te reste {0}$ de dettes !",
+			"tu resteras ici tant que tu n'as pas reboursé les {0}$ !",
+		];
+
 	}
 
 	// Player contains drawed cards, points, ect.
@@ -81,7 +101,7 @@ namespace BadJack
 			if (cardTop.IsValue("1"))
 			{//ace score pick
 				Color.SetConsole(ConsoleColor.Yellow);
-				Console.Write("voilà un as pour {0}!", name);
+				Console.Write("voilà un as pour {0} !", name);
 				Color.SetConsole(ConsoleColor.DarkGray);
 				Console.WriteLine(" Il vaut 1 ou 11?");
 				string? input;
@@ -192,6 +212,13 @@ namespace BadJack
 
 	class Color
 	{
+		public static List<ConsoleColor> colors = [
+			ConsoleColor.Black, ConsoleColor.Blue, ConsoleColor.Cyan, ConsoleColor.DarkBlue,
+			ConsoleColor.DarkCyan, ConsoleColor.DarkGray, ConsoleColor.DarkGreen, ConsoleColor.DarkMagenta,
+			ConsoleColor.DarkRed, ConsoleColor.DarkRed, ConsoleColor.DarkYellow, ConsoleColor.Gray,
+			ConsoleColor.Green, ConsoleColor.Magenta, ConsoleColor.Red, ConsoleColor.White, ConsoleColor.Yellow
+			];
+
 		// change console's color
 		public static void SetConsole(ConsoleColor? foreground = ConsoleColor.White, ConsoleColor? background = null)
 		{
@@ -241,10 +268,13 @@ namespace BadJack
 		public double Play()
 		{
 			// shuffle
-			for (int i = 0; i < Settings.deckColorAmount * Settings.deckPileAmount; i++)
+			for (int i = 0; i < Settings.deckColorAmount; i++)
 			{
-				List<Card> cardsColor = Settings.deckComposition.ConvertAll(v => new Card(v, Settings.globalSuits[i]));
-				cards.AddRange(cardsColor);
+				for (int j = 0; j < Settings.deckColorAmount; j++)
+				{
+					List<Card> cardsColor = Settings.deckComposition.ConvertAll(v => new Card(v, Settings.globalSuits[i]));
+					cards.AddRange(cardsColor);
+				}
 			}
 			cards = cards.OrderBy(x => Guid.NewGuid()).ToList();
 			Color.SetConsole(ConsoleColor.White);
@@ -266,7 +296,7 @@ namespace BadJack
 			RoundEnd endReslut = Loop();
 
 			Color.ClearConsole();
-			Console.WriteLine("\nC'est fini!");
+			Console.WriteLine("\nC'est fini !");
 			Thread.Sleep(2222);
 			playerHuman.Display(true);
 			playerComputer.Display(true);
@@ -301,7 +331,7 @@ namespace BadJack
 				}
 				else if (jackHuman)
 				{
-					return new RoundEnd(2.5, ConsoleColor.Green, "Tu as blackjack!! bien joué!");
+					return new RoundEnd(2.5, ConsoleColor.Green, "Tu as blackjack!! bien joué !");
 				}
 			}
 			else
@@ -311,18 +341,20 @@ namespace BadJack
 				while (true)
 				{
 					// endgame triggers
-					bool looseComputer = playerComputer.score >= 21;
-					bool looseHuman = playerHuman.score >= 21;
+					bool looseComputer = playerComputer.score > 21;
+					bool looseHuman = playerHuman.score > 21;
 
 					if (looseComputer)
 					{
 						if (looseHuman)
 						{
-							return new RoundEnd(1, ConsoleColor.Yellow, "Vous avez tous les deux dépassés 21...");
+							Color.SetConsole(ConsoleColor.Yellow);
+							Console.WriteLine("Vous avez tous les deux dépassés 21...");
+							return CalculateNearestEnd();
 						}
 						else
 						{
-							return new RoundEnd(2, ConsoleColor.Green, "L'ordi a dépassé 21, bien joué!");
+							return new RoundEnd(2, ConsoleColor.Green, "L'ordi a dépassé 21, bien joué !");
 						}
 					}
 
@@ -355,9 +387,19 @@ namespace BadJack
 						Color.SetConsole(ConsoleColor.DarkGray);
 						Console.WriteLine("o - ui\nn - nan");
 						Thread.Sleep(666);
-						Color.SetConsole(ConsoleColor.Cyan);
-						string? choixJoueur = Console.ReadLine();
-						if (choixJoueur?.ToUpper() == "O")
+						string? choixJoueur;
+
+						while (true)
+						{
+							Color.SetConsole(ConsoleColor.Cyan);
+							choixJoueur = Console.ReadLine();
+							choixJoueur = choixJoueur?.ToUpper();
+							if (choixJoueur == "O" || choixJoueur == "N") break;
+							Color.SetConsole(ConsoleColor.Red);
+							Console.WriteLine("Saisir O ou N");
+						}
+
+						if (choixJoueur == "O")
 						{
 							Console.WriteLine("[joueur] je pioche");
 							playerHuman.Draw(cards);
@@ -502,7 +544,7 @@ namespace BadJack
 			Color.SetConsole(ConsoleColor.DarkGray);
 			Console.WriteLine("({0} par défaut)", Settings.deckColorAmount);
 			Settings.deckColorAmount = IntPut(0, 8, Settings.deckColorAmount);
-			
+
 			// pick amount of deck
 			Color.ClearConsole();
 			Console.Write("choisir le nombre de paquets ");
@@ -511,12 +553,175 @@ namespace BadJack
 			Settings.deckPileAmount = IntPut(0, 42, Settings.deckPileAmount);
 		}
 
+		static int money;
+		static int dept = 0;
+
+		static void onDept(int amout = 100)
+		{
+			dept += amout;
+			money += amout;
+			Invicible.On();
+		}
+		static void offDept()
+		{
+			money -= dept;
+			dept = 0;
+			Invicible.Off();
+		}
+		
+		public static void deptMessage()
+		{
+			Color.SetConsole(ConsoleColor.Red);
+			string randomMessage = Settings.deptMessages[random.Next(Settings.deptMessages.Count)];
+			Console.WriteLine(randomMessage, dept);
+			Color.ClearConsole();
+		}
 
 		static void Main(string[] args)
 		{
 			SetSettings();
-			Round round = new();
-			double victory = round.Play();
+
+			money = 100;
+
+			while (true)
+			{
+				GameDepts();
+
+				// bet
+				Color.SetConsole();
+				Console.Write("combien tu veux miser ?");
+				Color.SetConsole(ConsoleColor.DarkGray);
+				Console.WriteLine(" attention à la banqueroute te sera fatale !");
+				int bet = IntPut(10, money);
+
+				// play
+				money -= bet;
+				Round round = new();
+				double victory = round.Play();
+
+				// earn
+				money += (int)Math.Round(victory * bet);
+			}
 		}
+
+		static void GameDepts()
+		{
+			// money
+			Thread.Sleep(666);
+			if (money < 10)
+				Color.SetConsole(ConsoleColor.Red);
+			else
+				Color.SetConsole(ConsoleColor.Yellow);
+			Console.WriteLine("tu as {0}$", money);
+			Thread.Sleep(666);
+
+			// dept
+			bool deptAction = false;
+			if (dept > 0)
+			{
+				deptAction = true;
+				if (money - 10 >= dept)
+				{
+					Thread.Sleep(1111);
+					Color.SetConsole(ConsoleColor.White, ConsoleColor.Green);
+					Console.Write("tu as réglé ta dette ! (-{0}$)", dept);
+					offDept();
+					Color.SetConsole();
+					Console.WriteLine("");
+					Thread.Sleep(2222);
+					Color.SetConsole(ConsoleColor.Green);
+					Console.WriteLine("tu es libre de partir");
+				}
+				else
+				{
+					int intrest = (int)(dept * Settings.deptIntrestFactor) + Settings.deptIntrestAdd;
+					dept += intrest;
+					Thread.Sleep(1111);
+					Color.SetConsole(ConsoleColor.Red);
+					Console.WriteLine("ta dette est désormais à {0}$ (dont {1}$ d'intrérêts)", dept, intrest);
+				}
+			}
+			
+			if (money < 10)
+			{
+				deptAction = true;
+				int amount = 100;
+				onDept(amount);
+				int intrest = (int)(dept * Settings.deptActiviationFactor) + Settings.deptActiviationAdd;
+				dept += intrest;
+				Color.SetConsole(ConsoleColor.Black, ConsoleColor.Red);
+				Thread.Sleep(2222);
+				Console.Write("tu n'as plus assez d'argent! ");
+				Color.ClearConsole();
+				Console.WriteLine("");
+				if (dept == 0)
+				{
+					Thread.Sleep(2222);
+					Color.SetConsole(ConsoleColor.Red);
+					Console.WriteLine("la gambling addicition t'as vaincue.");
+					Thread.Sleep(2222);
+					Color.SetConsole(ConsoleColor.Red);
+					Console.WriteLine("tu fais un emprunt de {0}$ pour continuer. (+{1}$ à rebourser)", amount, intrest);
+				}
+				else
+				{
+					Thread.Sleep(2222);
+					Color.SetConsole(ConsoleColor.Red);
+					Console.WriteLine("la gambling addicition t'as encore vaincue.");
+					Thread.Sleep(2222);
+					Color.SetConsole(ConsoleColor.Red);
+					Console.WriteLine("tu fais un emprunt de {0}$ supplémentaires. (dette totale de {1}$)", amount, dept);
+				}
+				Thread.Sleep(1111);
+				Color.SetConsole(ConsoleColor.Red);
+				Console.WriteLine("tu devera régler cette dette avant de partir.");
+			}
+			
+			if (deptAction)
+			{
+				// money
+				Thread.Sleep(1111);
+				if (money < 10)
+					Color.SetConsole(ConsoleColor.Red);
+				else
+					Color.SetConsole(ConsoleColor.Yellow);
+				Console.WriteLine("tu as maintenant {0}$", money);
+			}
+		}
+	}
+}
+
+class Invicible
+{
+	static Action cancelAction = Game.deptMessage;
+
+	private delegate bool CancelExitDelegate(int eventType);
+	private static CancelExitDelegate _handler = new(CancelExit);
+	private static bool _killDisabled = false;
+
+	public static void On()
+	{
+		if (_killDisabled) return;
+		Console.CancelKeyPress += CancelKey;
+		_killDisabled = true;
+	}
+
+	public static void Off()
+	{
+		if (!_killDisabled) return;
+		Console.CancelKeyPress -= CancelKey;
+		_killDisabled = false;
+	}
+
+	private static void CancelKey(object? sender, ConsoleCancelEventArgs e)
+	{
+		cancelAction();
+		e.Cancel = true;
+	}
+
+	private static bool CancelExit(int eventType)
+	{
+		cancelAction();
+		return true;
 	}
 }
