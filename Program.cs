@@ -1,6 +1,52 @@
 ﻿
 namespace BadJack
 {
+	class Settings
+	{
+		// here if you want to add a card
+		public static Dictionary<string, int> CardsAndPoints = new Dictionary<string, int>()
+		{
+			{"1", 1},
+			{"2", 2},
+			{"3", 3},
+			{"4", 4},
+			{"5", 5},
+			{"6", 6},
+			{"7", 7},
+			{"8", 8},
+			{"9", 9},
+			{"10", 10},
+			{"V", 10},
+			{"D", 10},
+			{"R", 10},
+		};
+		
+		// here if you want change cards suits
+		public static List<CardSuit> globalSuits =
+		[
+			// defaults suits
+			new("♥", ConsoleColor.White, ConsoleColor.DarkRed),
+			new("♠", ConsoleColor.Black, ConsoleColor.DarkGray),
+			new("♦", ConsoleColor.White, ConsoleColor.DarkRed),
+			new("♣", ConsoleColor.Black, ConsoleColor.DarkGray),
+			// negative suits
+			new("♡", ConsoleColor.White, ConsoleColor.DarkRed),
+			new("♤", ConsoleColor.Black, ConsoleColor.DarkGray),
+			new("♢", ConsoleColor.White, ConsoleColor.DarkRed),
+			new("♧", ConsoleColor.Black, ConsoleColor.DarkGray),
+			// funny suits
+			new("☺", ConsoleColor.Black, ConsoleColor.Yellow),
+			new("☠", ConsoleColor.Black, ConsoleColor.White),
+		];
+
+		//
+		public static List<string> deckComposition = CardsAndPoints.Keys.ToList();
+
+		public static string humanName = "un humain trop nul";
+		
+		public static int deckColorAmount = 4;
+		public static int deckPileAmount = 2;
+	}
 
 	// Player contains drawed cards, points, ect.
 	class Player
@@ -32,7 +78,7 @@ namespace BadJack
 
 			Card cardTop = paquet.First();
 			pile.Add(cardTop);
-			if (cardTop.IsSymbol("1"))
+			if (cardTop.IsValue("1"))
 			{//ace score pick
 				Game.SetConsoleColor(ConsoleColor.Yellow);
 				Console.Write("voilà un as pour {0}!", name);
@@ -83,43 +129,64 @@ namespace BadJack
 
 			for (int i = pile.Count - 1; i >= startIndex; i--)
 			{
-				Game.SetConsoleColor(ConsoleColor.DarkGray);
-				Console.Write("[");
 				pile[i].Display();
-				Game.SetConsoleColor(ConsoleColor.DarkGray);
-				Console.Write("]");
+				Game.ClearConsoleColor();
+				Console.Write(" ");
 			}
-			
+
 			Game.SetConsoleColor(color);
 			Console.WriteLine("({0} points)", showFirst ? score : "?");
 		}
 	}
-	
+
+
+
 	// a card of deck
 	class Card
 	{
-		string symbol = "!";
-		int colorCode = 0;
+		string value;
+		CardSuit suit;
 
-		public Card(string symbol, int colorCode)
+		public Card(string symbol, CardSuit suit)
 		{
-			this.symbol = symbol;
-			this.colorCode = colorCode;
+			this.value = symbol;
+			this.suit = suit;
 		}
 
 		public void Display()
 		{
-			Game.SetConsoleColor(ConsoleColor.Black, ConsoleColor.White);
-			Console.Write(symbol);
+			this.suit.Display(value);
 		}
-		
-		public bool IsSymbol(string compare)
+
+		public bool IsValue(string compare)
 		{
-			return compare == this.symbol;
+			return compare == this.value;
 		}
 		public int GetPoints()
 		{
-			return Game.pointsDictionary[this.symbol];
+			return Settings.CardsAndPoints[this.value];
+		}
+	}
+	
+
+	// reprsent a color+symbol card suit (heart...)
+	class CardSuit
+	{
+		string symbol = "";
+		ConsoleColor foreground;
+		ConsoleColor background;
+
+		public CardSuit(string symbol, ConsoleColor foreground, ConsoleColor background)
+		{
+			this.symbol = symbol;
+			this.foreground = foreground;
+			this.background = background;
+		}
+
+		public void Display(string value)
+		{
+			Game.SetConsoleColor(foreground, background);
+			Console.Write("[{0}{1}]", symbol, value);
 		}
 	}
 
@@ -152,46 +219,31 @@ namespace BadJack
 			if (foreground != null) Console.ForegroundColor = (ConsoleColor)foreground;
 			if (background != null) Console.BackgroundColor = (ConsoleColor)background;
 		}
+		
 		// just an alias
 		public static void ClearConsoleColor()
 		{
 			SetConsoleColor();
 		}
 
-		// the score dico
-		public static Dictionary<string, int> pointsDictionary = new Dictionary<string, int>()
-		{
-			{"1", 1},
-			{"2", 2},
-			{"3", 3},
-			{"4", 4},
-			{"5", 5},
-			{"6", 6},
-			{"7", 7},
-			{"8", 8},
-			{"9", 9},
-			{"10", 10},
-			{"V", 10},
-			{"D", 10},
-			{"R", 10},
-		};
-
 
 		public static Random random = new Random();
 
-		static void Main(string[] args)
+
+
+		static void SetSettings()
 		{
 			// pick name
 			ClearConsoleColor();
 			Console.WriteLine("donne ton nom ou c'est moi qui choisi");
 			SetConsoleColor(ConsoleColor.Cyan);
-			string? humanName = Console.ReadLine();
-			if (humanName == null || humanName == "") humanName = "un humain trop nul";
+			string? nameInput = Console.ReadLine();
+			if (!(nameInput == null || nameInput == "")) Settings.humanName = nameInput;
 
 			// * deck composition
 			// pick cards of deck
-			List<string> aviableCards = [.. pointsDictionary.Keys];
-			List<string> paquet = [.. pointsDictionary.Keys];
+			List<string> aviableCards = [.. Settings.CardsAndPoints.Keys];
+			List<string> paquet = Settings.deckComposition;
 			ClearConsoleColor();
 			Console.WriteLine("voici le jeu de cartes :");
 			while (true)
@@ -208,7 +260,7 @@ namespace BadJack
 				// check proposition
 				List<string> paquetProposed = [.. inputed.Split(" ")];
 				bool valid = true;
-				paquetProposed.RemoveAll(v => v == "" );
+				paquetProposed.RemoveAll(v => v == "");
 				foreach (string v in paquetProposed)
 				{
 					if (!aviableCards.Contains(v))
@@ -226,39 +278,48 @@ namespace BadJack
 					Console.WriteLine("nouveau paquet :");
 				}
 			}
+			Settings.deckComposition = paquet;
 
 			// pick colors of deck
 			ClearConsoleColor();
 			Console.Write("choisir le nombre de couleurs ");
 			SetConsoleColor(ConsoleColor.DarkGray);
-			Console.WriteLine("(4 par défaut)");
-			int colorAmount = IntPut(0, 42, 2);
+			Console.WriteLine("({0} par défaut)", Settings.deckColorAmount);
+			Settings.deckColorAmount = IntPut(0, 8, Settings.deckColorAmount);
 			
 			// pick amount of deck
 			ClearConsoleColor();
 			Console.Write("choisir le nombre de paquets ");
 			SetConsoleColor(ConsoleColor.DarkGray);
-			Console.WriteLine("(2 par défaut)");
-			int paquetAmount = IntPut(0, 42, 2);
+			Console.WriteLine("({0} par défaut)", Settings.deckPileAmount);
+			Settings.deckPileAmount = IntPut(0, 42, Settings.deckPileAmount);
+		}
+
+
+		static void Main(string[] args)
+		{
+			SetSettings();
+
+			// init
+			Player playerHuman = new(true, Settings.humanName, ConsoleColor.Cyan);
+			Player playerComputer = new(false, "ordinateur", ConsoleColor.Blue);
+			List<Card> cards = [];
+
+			// shuffle
+			for (int i = 0; i < Settings.deckColorAmount * Settings.deckPileAmount; i++)
+			{
+				List<Card> cardsColor = Settings.deckComposition.ConvertAll(v => new Card(v, Settings.globalSuits[i]));
+				cards.AddRange(cardsColor);
+			}
+			cards = cards.OrderBy(x => Guid.NewGuid()).ToList();
+			SetConsoleColor(ConsoleColor.White);
+			Console.WriteLine("Il y a {0} cartes dans le paquet.", cards.Count);
 
 			// start
 			SetConsoleColor(ConsoleColor.White);
 			Console.WriteLine("\n///////////////////\n///  blackjack  ///\n///////////////////\n");
 			SetConsoleColor(ConsoleColor.White);
 			Console.WriteLine("Chacun pioche 2 cartes...");
-
-			// init
-			Player playerHuman = new(true, humanName, ConsoleColor.Cyan);
-			Player playerComputer = new(false, "ordinateur", ConsoleColor.Blue);
-			List<Card> cards = [];
-
-			// shuffle
-			for (int i = 0; i < paquetAmount * colorAmount; i++)
-			{
-				List<Card> cardsColor = paquet.ConvertAll(v => new Card(v, 0));
-				cards.AddRange(cardsColor);
-			}
-			cards = cards.OrderBy(x => Guid.NewGuid()).ToList();
 
 			// give cards
 			for (int i = 0; i < 2; i++)
@@ -308,7 +369,7 @@ namespace BadJack
 					// endgame triggers
 					bool looseComputer = playerComputer.score >= 21;
 					bool looseHuman = playerHuman.score >= 21;
-					
+
 					if (looseComputer)
 					{
 						if (looseHuman)
@@ -335,7 +396,7 @@ namespace BadJack
 					{
 						break;//finish game
 					}
-					
+
 					// no cards
 					if (cards.Count == 0)
 					{
@@ -350,7 +411,7 @@ namespace BadJack
 					{
 						Thread.Sleep(1111);
 
-						SetConsoleColor();
+						ClearConsoleColor();
 						Console.WriteLine("piocher ?");
 						SetConsoleColor(ConsoleColor.DarkGray);
 						Console.WriteLine("o - ui\nn - nan");
@@ -372,7 +433,7 @@ namespace BadJack
 					playerHuman.Display(true);
 
 					// no cards
-					if (cards.Count == 0) 
+					if (cards.Count == 0)
 					{
 						SetConsoleColor(ConsoleColor.White);
 						Console.WriteLine("apu de carte :(");
