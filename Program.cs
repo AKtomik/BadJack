@@ -5,7 +5,7 @@ namespace BadJack
 	// Player contains drawed cards, points, ect.
 	class Player
 	{
-		List<string> pile;
+		List<Card> pile;
 		public int score;
 		string name;
 		bool willChoose;
@@ -13,14 +13,14 @@ namespace BadJack
 
 		public Player(bool willChoose = false, string name = "no name guy", ConsoleColor color = ConsoleColor.White)
 		{
-			this.pile = new List<string>();
+			this.pile = new List<Card>();
 			this.score = 0;
 			this.name = name;
 			this.willChoose = willChoose;
 			this.color = color;
 		}
 
-		public void Draw(List<string> paquet)
+		public void Draw(List<Card> paquet)
 		{
 			Thread.Sleep(333);
 			if (paquet.Count == 0)
@@ -30,9 +30,9 @@ namespace BadJack
 				return;
 			}
 
-			string card = paquet.First();
-			pile.Add(card);
-			if (card == "1")
+			Card cardTop = paquet.First();
+			pile.Add(cardTop);
+			if (cardTop.IsSymbol("1"))
 			{//ace score pick
 				Game.SetConsoleColor(ConsoleColor.Yellow);
 				Console.Write("voilà un as pour {0}!", name);
@@ -62,7 +62,7 @@ namespace BadJack
 			}
 			else
 			{
-				score += Game.pointsDictionary[card];
+				score += cardTop.GetPoints();
 			}
 			paquet.RemoveAt(0);
 		}
@@ -70,18 +70,56 @@ namespace BadJack
 		public void Display(bool showFirst = true)
 		{
 			int startIndex = 0;
-			string arrayStr = "";
+
+			Game.SetConsoleColor(color);
+			Console.Write("{0} : ", name);
+
 			if (!showFirst)
 			{
-				arrayStr += "[?] ";
+				Game.SetConsoleColor(ConsoleColor.DarkGray);
+				Console.Write("[?] ");
 				startIndex = 1;
 			}
+
 			for (int i = pile.Count - 1; i >= startIndex; i--)
 			{
-				arrayStr += "[" + pile[i] + "] ";
+				Game.SetConsoleColor(ConsoleColor.DarkGray);
+				Console.Write("[");
+				pile[i].Display();
+				Game.SetConsoleColor(ConsoleColor.DarkGray);
+				Console.Write("]");
 			}
+			
 			Game.SetConsoleColor(color);
-			Console.WriteLine("{0} : {1}({2} points)", name, arrayStr, (showFirst) ? score : "?");
+			Console.WriteLine("({0} points)", showFirst ? score : "?");
+		}
+	}
+	
+	// a card of deck
+	class Card
+	{
+		string symbol = "!";
+		int colorCode = 0;
+
+		public Card(string symbol, int colorCode)
+		{
+			this.symbol = symbol;
+			this.colorCode = colorCode;
+		}
+
+		public void Display()
+		{
+			Game.SetConsoleColor(ConsoleColor.Black, ConsoleColor.White);
+			Console.Write(symbol);
+		}
+		
+		public bool IsSymbol(string compare)
+		{
+			return compare == this.symbol;
+		}
+		public int GetPoints()
+		{
+			return Game.pointsDictionary[this.symbol];
 		}
 	}
 
@@ -212,11 +250,14 @@ namespace BadJack
 			// init
 			Player playerHuman = new(true, humanName, ConsoleColor.Cyan);
 			Player playerComputer = new(false, "ordinateur", ConsoleColor.Blue);
-			List<string> cards = [];
+			List<Card> cards = [];
 
 			// shuffle
-			for (int i = 0; i < paquetAmount*colorAmount; i++)
-				cards.AddRange(paquet);
+			for (int i = 0; i < paquetAmount * colorAmount; i++)
+			{
+				List<Card> cardsColor = paquet.ConvertAll(v => new Card(v, 0));
+				cards.AddRange(cardsColor);
+			}
 			cards = cards.OrderBy(x => Guid.NewGuid()).ToList();
 
 			// give cards
