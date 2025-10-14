@@ -107,21 +107,25 @@ namespace BadJack
 
 		static void Main(string[] args)
 		{
-			// name
+			// pick name
 			Console.WriteLine("donne ton nom ou c'est moi qui choisi");
 			string? humanName = Console.ReadLine();
 			if (humanName == null || humanName == "") humanName = "un humain trop nul";
 
-			// cards
+			// * deck composition
+			// pick cards of deck
 			Console.WriteLine("voici le jeu de cartes :");
 			List<string> aviableCards = pointsDictionary.Keys.ToList();
 			List<string> paquet = pointsDictionary.Keys.ToList();
 			while (true)
 			{
+				// console
 				Console.WriteLine(string.Join(" ", paquet));
 				Console.WriteLine("entrée pour valider, ou en saisir un nouveau");
 				string? inputed = Console.ReadLine();
+				// valid if nothing
 				if (inputed == null || inputed == "") break;
+				// check proposition
 				List<string> paquetProposed = [.. inputed.Split(" ")];
 				bool valid = true;
 				paquetProposed.RemoveAll(v => v == "" );
@@ -133,6 +137,7 @@ namespace BadJack
 						valid = false;
 					}
 				}
+				// validate proposition
 				if (valid)
 				{
 					paquet = paquetProposed;
@@ -140,9 +145,11 @@ namespace BadJack
 				}
 			}
 
+			// pick colors of deck
 			Console.WriteLine("choisir le nombre de couleurs (4 par défaut)");
 			int colorAmount = IntPut(0, 42, 2);
 			
+			// pick amount of deck
 			Console.WriteLine("choisir le nombre de paquets (un paquet = {0} couleurs) (2 par défaut)", colorAmount);
 			int paquetAmount = IntPut(0, 42, 2);
 
