@@ -73,7 +73,7 @@ namespace BadJack
 				arrayStr += "[" + pile[i] + "] ";
 			}
 			Game.SetConsoleColor(color);
-			Console.WriteLine("{0} : {1}({2} points)", name, arrayStr, score);
+			Console.WriteLine("{0} : {1}({2} points)", name, arrayStr, (showFirst) ? score : "?");
 		}
 	}
 
