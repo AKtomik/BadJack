@@ -591,7 +591,7 @@ namespace BadJack
 				Color.SetConsole();
 				Console.Write("combien tu veux miser ?");
 				Color.SetConsole(ConsoleColor.DarkGray);
-				Console.WriteLine(" attention à la banqueroute te sera fatale !");
+				Console.WriteLine(" attention à la banqueroute !");
 				int bet = IntPut(10, money);
 
 				// play
@@ -646,6 +646,7 @@ namespace BadJack
 			{
 				deptAction = true;
 				int amount = 100;
+				bool wasUndepted = dept == 0;
 				onDept(amount);
 				int intrest = (int)(dept * Settings.deptActiviationFactor) + Settings.deptActiviationAdd;
 				dept += intrest;
@@ -654,7 +655,7 @@ namespace BadJack
 				Console.Write("tu n'as plus assez d'argent! ");
 				Color.ClearConsole();
 				Console.WriteLine("");
-				if (dept == 0)
+				if (wasUndepted)
 				{
 					Thread.Sleep(2222);
 					Color.SetConsole(ConsoleColor.Red);
