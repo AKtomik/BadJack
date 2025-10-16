@@ -254,11 +254,11 @@ namespace BadJack
 		}
 		public static void SpeakLine(string message)
 		{
-			Console.Write(message);
+			Console.WriteLine(message);
 		}
 		public static void SpeakLine(string message, params object[]? args)
 		{
-			Console.Write(message, args);
+			Console.WriteLine(message, args);
 		}
 
 		// change console's color
