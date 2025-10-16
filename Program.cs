@@ -249,6 +249,15 @@ namespace BadJack
 		{
 			Console.Write(message);
 		}
+		public static void JumpLine()
+		{
+			ConsoleColor ForegroundColor = Console.ForegroundColor;
+			ConsoleColor BackgroundColor = Console.BackgroundColor;
+			Console.ResetColor();
+			Console.WriteLine();
+			Console.ForegroundColor = ForegroundColor;
+			Console.BackgroundColor = BackgroundColor;
+		}
 
 		// write interfaces
 		public static void Speak(string message)
@@ -263,11 +272,13 @@ namespace BadJack
 		public static void SpeakLine(string message)
 		{
 			Speaking(message);
+			JumpLine();
 		}
 		public static void SpeakLine(string message, params object[] args)
 		{
 			message = string.Format(message, args);
 			Speaking(message);
+			JumpLine();
 		}
 
 		// change console's color
