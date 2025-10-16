@@ -20,7 +20,7 @@ namespace BadJack
 		// here if you want to add a card
 		public static Dictionary<string, int> CardsAndPoints = new Dictionary<string, int>()
 		{
-			{"1", 1},
+			{"A", 1},
 			{"2", 2},
 			{"3", 3},
 			{"4", 4},
@@ -168,7 +168,7 @@ namespace BadJack
 			Color.SetConsole(color);
 			Console.Write("{0} : ", name);
 
-			if (!showFirst)
+			if (!showFirst && pile.Count > 0)
 			{
 				Color.SetConsole(ConsoleColor.DarkGray);
 				Console.Write("[?] ");
