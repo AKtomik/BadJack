@@ -572,7 +572,7 @@ namespace BadJack
 			Console.Write("choisir le nombre de couleurs ");
 			Color.SetConsole(ConsoleColor.DarkGray);
 			Console.WriteLine("({0} par défaut)", Settings.deckColorAmount);
-			Settings.deckColorAmount = IntPut(0, 8, Settings.deckColorAmount);
+			Settings.deckColorAmount = IntPut(0, 10, Settings.deckColorAmount);
 
 			// pick amount of deck
 			Color.ClearConsole();
@@ -721,7 +721,7 @@ namespace BadJack
 			Console.Write("combien tu veux miser ?");
 			Color.SetConsole(ConsoleColor.DarkGray);
 			Console.WriteLine(" attention à la banqueroute !");
-			int bet = IntPut(10, money);
+			bet = IntPut(10, money);
 		}
 	}
 
