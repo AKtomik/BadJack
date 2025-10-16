@@ -10,6 +10,11 @@ namespace BadJack
 		public static int objectiveScore = 21;
 		public static int startingMoney = 1000;
 		public static int deptAmount = 500;
+		
+		// here if you want to change some detailed rules
+		public static bool botDrawIfPlayerFail = true;
+		public static bool ifPickableAce = true;
+		public static bool ifBotPickSmartAce = false;
 
 
 		// here if you want to add a card
@@ -109,28 +114,45 @@ namespace BadJack
 				Color.SetConsole(ConsoleColor.Yellow);
 				Console.Write("voilà un as pour {0} !", name);
 				Color.SetConsole(ConsoleColor.DarkGray);
-				Console.WriteLine(" Il vaut 1 ou 11?");
-				string? input;
 
-				if (willChoose)
-				{//player can choose
-					while (true)
-					{
-						Color.SetConsole(color);
-						input = Console.ReadLine();
-						if (input == "1" || input == "11") break;
-						Color.SetConsole(ConsoleColor.Red);
-						Console.WriteLine("Saisir 1 ou 11");
+				if (Settings.ifPickableAce)
+				{//else smart for everyone
+					Console.WriteLine(" Il vaut 1 ou 11?");
+					string? input;
+
+					if (willChoose)
+					{//player can choose
+						while (true)
+						{
+							Color.SetConsole(color);
+							input = Console.ReadLine();
+							if (input == "1" || input == "11") break;
+							Color.SetConsole(ConsoleColor.Red);
+							Console.WriteLine("Saisir 1 ou 11");
+						}
 					}
+					else
+					{//bot pick
+						if (Settings.ifBotPickSmartAce)
+						{//is smart
+							input = (score + 11 > Settings.objectiveScore) ? "1" : "11";
+						}
+						else
+						{//is random
+							if (Game.random?.Next(1) == 0) input = "11";
+							else input = "1";
+						}
+						Color.SetConsole(color);
+						Console.WriteLine(input);
+					}
+					score += int.Parse(input);
 				}
 				else
-				{//is random
-					if (Game.random?.Next(1) == 0) input = "11";
-					else input = "1";
+				{
+					int aceValue = (score + 11 > Settings.objectiveScore) ? 1 : 11;
 					Color.SetConsole(color);
-					Console.WriteLine(input);
+					Console.WriteLine(aceValue);
 				}
-				score += int.Parse(input);
 			}
 			else
 			{
@@ -416,7 +438,11 @@ namespace BadJack
 					Thread.Sleep(1111);
 					playerHuman.Display(true);
 
-					// no cards
+					// middle checks
+					if (!Settings.botDrawIfPlayerFail && playerHuman.score > Settings.objectiveScore)
+					{
+						return new RoundEnd(0, ConsoleColor.Red, "Tu as dépassé "+Settings.objectiveScore+", trop nul...");
+					}
 					if (cards.Count == 0)
 					{
 						Color.SetConsole(ConsoleColor.White);
