@@ -66,9 +66,11 @@ namespace BadJack
 			"tu resteras ici tant que tu n'as pas reboursé les {0}$ !",
 		];
 
+		public static List<string> randomBotName = new List<string> { 
+			"CrazyBot","CrazyVerno","Sheeesh","CrazyScale","CrazyTismé","CrazyMillionaire","WoodyWoodpecker","CrazyValet","CrazyAnge", "CrazySteiro"
+			};
 	}
 
-	// Player contains drawed cards, points, ect.
 	class Player
 	{
 		List<Card> pile;
@@ -159,9 +161,6 @@ namespace BadJack
 		}
 	}
 
-
-
-	// a card of deck
 	class Card
 	{
 		string value;
@@ -188,8 +187,6 @@ namespace BadJack
 		}
 	}
 
-
-	// reprsent a color+symbol card suit (heart...)
 	class CardSuit
 	{
 		string symbol = "";
@@ -261,7 +258,9 @@ namespace BadJack
 		{
 			// init
 			playerHuman = new(true, Settings.humanName, ConsoleColor.Cyan);
-			playerComputer = new(false, "ordinateur", ConsoleColor.Blue);
+			Random rnd = new Random();
+			string botname = Settings.randomBotName[rnd.Next(Settings.randomBotName.Count)];
+			playerComputer = new(false, botname, ConsoleColor.Blue);
 			cards = [];
 		}
 
@@ -465,264 +464,264 @@ namespace BadJack
 	}
 
 	class Game
-	{
-		// function to get input as int without crash
-		static int IntPut(int inputMinIncluded, int inputMaxIncluded, int? defaultValue = null)
 		{
-			while (true)
+			// function to get input as int without crash
+			static int IntPut(int inputMinIncluded, int inputMaxIncluded, int? defaultValue = null)
 			{
-				Color.SetConsole(ConsoleColor.Cyan);
-				string? inputString = Console.ReadLine();
-				int inputInt;
-				if (defaultValue != null && (inputString == null || inputString == ""))
-					return (int)defaultValue;
-				else if (int.TryParse(inputString, out inputInt) && inputInt >= inputMinIncluded && inputInt <= inputMaxIncluded)
-					return inputInt;
-				else
+				while (true)
 				{
-					Color.SetConsole(ConsoleColor.Red);
-					Console.WriteLine("donne un nombre valide ({0}-{1})", inputMinIncluded, inputMaxIncluded);
-				}
-			}
-		}
-
-
-		public static Random random = new Random();
-
-		static void SetSettings()
-		{
-			// pick name
-			Color.ClearConsole();
-			Console.WriteLine("donne ton nom ou c'est moi qui choisi");
-			Color.SetConsole(ConsoleColor.Cyan);
-			string? nameInput = Console.ReadLine();
-			if (!(nameInput == null || nameInput == "")) Settings.humanName = nameInput;
-
-			// * deck composition
-			// pick cards of deck
-			List<string> aviableCards = [.. Settings.CardsAndPoints.Keys];
-			List<string> paquet = Settings.deckComposition;
-			Color.ClearConsole();
-			Console.WriteLine("voici le jeu de cartes :");
-			while (true)
-			{
-				// console
-				Color.SetConsole(ConsoleColor.Blue);
-				Console.WriteLine(string.Join(" ", paquet));
-				Color.SetConsole(ConsoleColor.DarkGray);
-				Console.WriteLine("<entrée> pour valider, ou en saisir un nouveau");
-				Color.SetConsole(ConsoleColor.Cyan);
-				string? inputed = Console.ReadLine();
-				// valid if nothing
-				if (inputed == null || inputed == "") break;
-				// check proposition
-				List<string> paquetProposed = [.. inputed.Split(" ")];
-				bool valid = true;
-				paquetProposed.RemoveAll(v => v == "");
-				foreach (string v in paquetProposed)
-				{
-					if (!aviableCards.Contains(v))
+					Color.SetConsole(ConsoleColor.Cyan);
+					string? inputString = Console.ReadLine();
+					int inputInt;
+					if (defaultValue != null && (inputString == null || inputString == ""))
+						return (int)defaultValue;
+					else if (int.TryParse(inputString, out inputInt) && inputInt >= inputMinIncluded && inputInt <= inputMaxIncluded)
+						return inputInt;
+					else
 					{
 						Color.SetConsole(ConsoleColor.Red);
-						Console.WriteLine("la carte [{0}] n'existe pas", v);
-						valid = false;
+						Console.WriteLine("donne un nombre valide ({0}-{1})", inputMinIncluded, inputMaxIncluded);
 					}
 				}
-				// validate proposition
-				if (valid)
-				{
-					paquet = paquetProposed;
-					Color.ClearConsole();
-					Console.WriteLine("nouveau paquet :");
-				}
 			}
-			Settings.deckComposition = paquet;
 
-			// pick colors of deck
-			Color.ClearConsole();
-			Console.Write("choisir le nombre de couleurs ");
-			Color.SetConsole(ConsoleColor.DarkGray);
-			Console.WriteLine("({0} par défaut)", Settings.deckColorAmount);
-			Settings.deckColorAmount = IntPut(0, 8, Settings.deckColorAmount);
 
-			// pick amount of deck
-			Color.ClearConsole();
-			Console.Write("choisir le nombre de paquets ");
-			Color.SetConsole(ConsoleColor.DarkGray);
-			Console.WriteLine("({0} par défaut)", Settings.deckPileAmount);
-			Settings.deckPileAmount = IntPut(0, 42, Settings.deckPileAmount);
-		}
+			public static Random random = new Random();
 
-		static int money;
-		static int dept = 0;
-
-		static void onDept(int amout = 100)
-		{
-			dept += amout;
-			money += amout;
-			Invicible.On();
-		}
-		static void offDept()
-		{
-			money -= dept;
-			dept = 0;
-			Invicible.Off();
-		}
-		
-		public static void deptMessage()
-		{
-			Color.SetConsole(ConsoleColor.Red);
-			string randomMessage = Settings.deptMessages[random.Next(Settings.deptMessages.Count)];
-			Console.WriteLine(randomMessage, dept);
-			Color.ClearConsole();
-		}
-
-		static void Main(string[] args)
-		{
-			SetSettings();
-
-			money = 100;
-
-			while (true)
+			static void SetSettings()
 			{
-				GameDepts();
-
-				// bet
-				Color.SetConsole();
-				Console.Write("combien tu veux miser ?");
-				Color.SetConsole(ConsoleColor.DarkGray);
-				Console.WriteLine(" attention à la banqueroute !");
-				int bet = IntPut(10, money);
-
-				// play
-				money -= bet;
-				Round round = new();
-				double victory = round.Play();
-
-				// earn
-				money += (int)Math.Round(victory * bet);
-			}
-		}
-
-		static void GameDepts()
-		{
-			// money
-			Thread.Sleep(666);
-			if (money < 10)
-				Color.SetConsole(ConsoleColor.Red);
-			else
-				Color.SetConsole(ConsoleColor.Yellow);
-			Console.WriteLine("tu as {0}$", money);
-			Thread.Sleep(666);
-
-			// dept
-			bool deptAction = false;
-			if (dept > 0)
-			{
-				deptAction = true;
-				if (money - 10 >= dept)
-				{
-					Thread.Sleep(1111);
-					Color.SetConsole(ConsoleColor.White, ConsoleColor.Green);
-					Console.Write("tu as réglé ta dette ! (-{0}$)", dept);
-					offDept();
-					Color.SetConsole();
-					Console.WriteLine("");
-					Thread.Sleep(2222);
-					Color.SetConsole(ConsoleColor.Green);
-					Console.WriteLine("tu es libre de partir");
-				}
-				else
-				{
-					int intrest = (int)(dept * Settings.deptIntrestFactor) + Settings.deptIntrestAdd;
-					dept += intrest;
-					Thread.Sleep(1111);
-					Color.SetConsole(ConsoleColor.Red);
-					Console.WriteLine("ta dette est désormais à {0}$ (dont {1}$ d'intrérêts)", dept, intrest);
-				}
-			}
-			
-			if (money < 10)
-			{
-				deptAction = true;
-				int amount = 100;
-				bool wasUndepted = dept == 0;
-				onDept(amount);
-				int intrest = (int)(dept * Settings.deptActiviationFactor) + Settings.deptActiviationAdd;
-				dept += intrest;
-				Color.SetConsole(ConsoleColor.Black, ConsoleColor.Red);
-				Thread.Sleep(2222);
-				Console.Write("tu n'as plus assez d'argent! ");
+				// pick name
 				Color.ClearConsole();
-				Console.WriteLine("");
-				if (wasUndepted)
+				Console.WriteLine("donne ton nom ou c'est moi qui choisi");
+				Color.SetConsole(ConsoleColor.Cyan);
+				string? nameInput = Console.ReadLine();
+				if (!(nameInput == null || nameInput == "")) Settings.humanName = nameInput;
+
+				// * deck composition
+				// pick cards of deck
+				List<string> aviableCards = [.. Settings.CardsAndPoints.Keys];
+				List<string> paquet = Settings.deckComposition;
+				Color.ClearConsole();
+				Console.WriteLine("voici le jeu de cartes :");
+				while (true)
 				{
-					Thread.Sleep(2222);
-					Color.SetConsole(ConsoleColor.Red);
-					Console.WriteLine("la gambling addicition t'as vaincue.");
-					Thread.Sleep(2222);
-					Color.SetConsole(ConsoleColor.Red);
-					Console.WriteLine("tu fais un emprunt de {0}$ pour continuer. (+{1}$ à rebourser)", amount, intrest);
+					// console
+					Color.SetConsole(ConsoleColor.Blue);
+					Console.WriteLine(string.Join(" ", paquet));
+					Color.SetConsole(ConsoleColor.DarkGray);
+					Console.WriteLine("<entrée> pour valider, ou en saisir un nouveau");
+					Color.SetConsole(ConsoleColor.Cyan);
+					string? inputed = Console.ReadLine();
+					// valid if nothing
+					if (inputed == null || inputed == "") break;
+					// check proposition
+					List<string> paquetProposed = [.. inputed.Split(" ")];
+					bool valid = true;
+					paquetProposed.RemoveAll(v => v == "");
+					foreach (string v in paquetProposed)
+					{
+						if (!aviableCards.Contains(v))
+						{
+							Color.SetConsole(ConsoleColor.Red);
+							Console.WriteLine("la carte [{0}] n'existe pas", v);
+							valid = false;
+						}
+					}
+					// validate proposition
+					if (valid)
+					{
+						paquet = paquetProposed;
+						Color.ClearConsole();
+						Console.WriteLine("nouveau paquet :");
+					}
 				}
-				else
-				{
-					Thread.Sleep(2222);
-					Color.SetConsole(ConsoleColor.Red);
-					Console.WriteLine("la gambling addicition t'as encore vaincue.");
-					Thread.Sleep(2222);
-					Color.SetConsole(ConsoleColor.Red);
-					Console.WriteLine("tu fais un emprunt de {0}$ supplémentaires. (dette totale de {1}$)", amount, dept);
-				}
-				Thread.Sleep(1111);
-				Color.SetConsole(ConsoleColor.Red);
-				Console.WriteLine("tu devera régler cette dette avant de partir.");
+				Settings.deckComposition = paquet;
+
+				// pick colors of deck
+				Color.ClearConsole();
+				Console.Write("choisir le nombre de couleurs ");
+				Color.SetConsole(ConsoleColor.DarkGray);
+				Console.WriteLine("({0} par défaut)", Settings.deckColorAmount);
+				Settings.deckColorAmount = IntPut(0, 8, Settings.deckColorAmount);
+
+				// pick amount of deck
+				Color.ClearConsole();
+				Console.Write("choisir le nombre de paquets ");
+				Color.SetConsole(ConsoleColor.DarkGray);
+				Console.WriteLine("({0} par défaut)", Settings.deckPileAmount);
+				Settings.deckPileAmount = IntPut(0, 42, Settings.deckPileAmount);
+			}
+
+			static int money;
+			static int dept = 0;
+
+			static void onDept(int amout = 100)
+			{
+				dept += amout;
+				money += amout;
+				Invicible.On();
+			}
+			static void offDept()
+			{
+				money -= dept;
+				dept = 0;
+				Invicible.Off();
 			}
 			
-			if (deptAction)
+			public static void deptMessage()
+			{
+				Color.SetConsole(ConsoleColor.Red);
+				string randomMessage = Settings.deptMessages[random.Next(Settings.deptMessages.Count)];
+				Console.WriteLine(randomMessage, dept);
+				Color.ClearConsole();
+			}
+
+			static void Main(string[] args)
+			{
+				SetSettings();
+
+				money = 100;
+
+				while (true)
+				{
+					GameDepts();
+
+					// bet
+					Color.SetConsole();
+					Console.Write("combien tu veux miser ?");
+					Color.SetConsole(ConsoleColor.DarkGray);
+					Console.WriteLine(" attention à la banqueroute !");
+					int bet = IntPut(10, money);
+
+					// play
+					money -= bet;
+					Round round = new();
+					double victory = round.Play();
+
+					// earn
+					money += (int)Math.Round(victory * bet);
+				}
+			}
+
+			static void GameDepts()
 			{
 				// money
-				Thread.Sleep(1111);
+				Thread.Sleep(666);
 				if (money < 10)
 					Color.SetConsole(ConsoleColor.Red);
 				else
 					Color.SetConsole(ConsoleColor.Yellow);
-				Console.WriteLine("tu as maintenant {0}$", money);
+				Console.WriteLine("tu as {0}$", money);
+				Thread.Sleep(666);
+
+				// dept
+				bool deptAction = false;
+				if (dept > 0)
+				{
+					deptAction = true;
+					if (money - 10 >= dept)
+					{
+						Thread.Sleep(1111);
+						Color.SetConsole(ConsoleColor.White, ConsoleColor.Green);
+						Console.Write("tu as réglé ta dette ! (-{0}$)", dept);
+						offDept();
+						Color.SetConsole();
+						Console.WriteLine("");
+						Thread.Sleep(2222);
+						Color.SetConsole(ConsoleColor.Green);
+						Console.WriteLine("tu es libre de partir");
+					}
+					else
+					{
+						int intrest = (int)(dept * Settings.deptIntrestFactor) + Settings.deptIntrestAdd;
+						dept += intrest;
+						Thread.Sleep(1111);
+						Color.SetConsole(ConsoleColor.Red);
+						Console.WriteLine("ta dette est désormais à {0}$ (dont {1}$ d'intrérêts)", dept, intrest);
+					}
+				}
+				
+				if (money < 10)
+				{
+					deptAction = true;
+					int amount = 100;
+					bool wasUndepted = dept == 0;
+					onDept(amount);
+					int intrest = (int)(dept * Settings.deptActiviationFactor) + Settings.deptActiviationAdd;
+					dept += intrest;
+					Color.SetConsole(ConsoleColor.Black, ConsoleColor.Red);
+					Thread.Sleep(2222);
+					Console.Write("tu n'as plus assez d'argent! ");
+					Color.ClearConsole();
+					Console.WriteLine("");
+					if (wasUndepted)
+					{
+						Thread.Sleep(2222);
+						Color.SetConsole(ConsoleColor.Red);
+						Console.WriteLine("la gambling addicition t'as vaincue.");
+						Thread.Sleep(2222);
+						Color.SetConsole(ConsoleColor.Red);
+						Console.WriteLine("tu fais un emprunt de {0}$ pour continuer. (+{1}$ à rebourser)", amount, intrest);
+					}
+					else
+					{
+						Thread.Sleep(2222);
+						Color.SetConsole(ConsoleColor.Red);
+						Console.WriteLine("la gambling addicition t'as encore vaincue.");
+						Thread.Sleep(2222);
+						Color.SetConsole(ConsoleColor.Red);
+						Console.WriteLine("tu fais un emprunt de {0}$ supplémentaires. (dette totale de {1}$)", amount, dept);
+					}
+					Thread.Sleep(1111);
+					Color.SetConsole(ConsoleColor.Red);
+					Console.WriteLine("tu devera régler cette dette avant de partir.");
+				}
+				
+				if (deptAction)
+				{
+					// money
+					Thread.Sleep(1111);
+					if (money < 10)
+						Color.SetConsole(ConsoleColor.Red);
+					else
+						Color.SetConsole(ConsoleColor.Yellow);
+					Console.WriteLine("tu as maintenant {0}$", money);
+				}
 			}
 		}
-	}
-}
 
-class Invicible
-{
-	static Action cancelAction = Game.deptMessage;
-
-	private delegate bool CancelExitDelegate(int eventType);
-	private static CancelExitDelegate _handler = new(CancelExit);
-	private static bool _killDisabled = false;
-
-	public static void On()
+	class Invicible
 	{
-		if (_killDisabled) return;
-		Console.CancelKeyPress += CancelKey;
-		_killDisabled = true;
-	}
+		static Action cancelAction = Game.deptMessage;
 
-	public static void Off()
-	{
-		if (!_killDisabled) return;
-		Console.CancelKeyPress -= CancelKey;
-		_killDisabled = false;
-	}
+		private delegate bool CancelExitDelegate(int eventType);
+		private static CancelExitDelegate _handler = new(CancelExit);
+		private static bool _killDisabled = false;
 
-	private static void CancelKey(object? sender, ConsoleCancelEventArgs e)
-	{
-		cancelAction();
-		e.Cancel = true;
-	}
+		public static void On()
+		{
+			if (_killDisabled) return;
+			Console.CancelKeyPress += CancelKey;
+			_killDisabled = true;
+		}
 
-	private static bool CancelExit(int eventType)
-	{
-		cancelAction();
-		return true;
+		public static void Off()
+		{
+			if (!_killDisabled) return;
+			Console.CancelKeyPress -= CancelKey;
+			_killDisabled = false;
+		}
+
+		private static void CancelKey(object? sender, ConsoleCancelEventArgs e)
+		{
+			cancelAction();
+			e.Cancel = true;
+		}
+
+		private static bool CancelExit(int eventType)
+		{
+			cancelAction();
+			return true;
+		}
 	}
 }
