@@ -103,7 +103,7 @@ namespace BadJack
 			Thread.Sleep(333);
 			if (paquet.Count == 0)
 			{
-				Color.SetConsole(ConsoleColor.DarkGray);
+				Write.SetColor(ConsoleColor.DarkGray);
 				Console.WriteLine("Le paquet est vide");
 				return;
 			}
@@ -112,9 +112,9 @@ namespace BadJack
 			pile.Add(cardTop);
 			if (cardTop.IsValue("A"))
 			{//ace score pick
-				Color.SetConsole(ConsoleColor.Yellow);
+				Write.SetColor(ConsoleColor.Yellow);
 				Console.Write("voilà un as pour {0} !", name);
-				Color.SetConsole(ConsoleColor.DarkGray);
+				Write.SetColor(ConsoleColor.DarkGray);
 
 				if (Settings.ifPickableAce)
 				{//else smart for everyone
@@ -125,10 +125,10 @@ namespace BadJack
 					{//player can choose
 						while (true)
 						{
-							Color.SetConsole(color);
+							Write.SetColor(color);
 							input = Console.ReadLine();
 							if (input == "1" || input == "11") break;
-							Color.SetConsole(ConsoleColor.Red);
+							Write.SetColor(ConsoleColor.Red);
 							Console.WriteLine("Saisir 1 ou 11");
 						}
 					}
@@ -143,7 +143,7 @@ namespace BadJack
 							if (Game.random?.Next(1) == 0) input = "11";
 							else input = "1";
 						}
-						Color.SetConsole(color);
+						Write.SetColor(color);
 						Console.WriteLine(input);
 					}
 					score += int.Parse(input);
@@ -151,7 +151,7 @@ namespace BadJack
 				else
 				{
 					int aceValue = (score + 11 > Settings.objectiveScore) ? 1 : 11;
-					Color.SetConsole(color);
+					Write.SetColor(color);
 					Console.WriteLine(aceValue);
 				}
 			}
@@ -166,12 +166,12 @@ namespace BadJack
 		{
 			int startIndex = 0;
 
-			Color.SetConsole(color);
+			Write.SetColor(color);
 			Console.Write("{0} : ", name);
 
 			if (!showFirst && pile.Count > 0)
 			{
-				Color.SetConsole(ConsoleColor.DarkGray);
+				Write.SetColor(ConsoleColor.DarkGray);
 				Console.Write("[?] ");
 				startIndex = 1;
 			}
@@ -179,11 +179,11 @@ namespace BadJack
 			for (int i = startIndex; i < pile.Count; i++)
 			{
 				pile[i].Display();
-				Color.ClearConsole();
+				Write.ClearColor();
 				Console.Write(" ");
 			}
 
-			Color.SetConsole(color);
+			Write.SetColor(color);
 			Console.WriteLine("({0} points)", showFirst ? score : "?");
 		}
 	}
@@ -229,13 +229,14 @@ namespace BadJack
 
 		public void Display(string value)
 		{
-			Color.SetConsole(foreground, background);
+			Write.SetColor(foreground, background);
 			Console.Write("[{0}{1}]", symbol, value);
 		}
 	}
 
-	class Color
+	class Write
 	{
+		// list of all avialbe colors
 		public static List<ConsoleColor> colors = [
 			ConsoleColor.Black, ConsoleColor.Blue, ConsoleColor.Cyan, ConsoleColor.DarkBlue,
 			ConsoleColor.DarkCyan, ConsoleColor.DarkGray, ConsoleColor.DarkGreen, ConsoleColor.DarkMagenta,
@@ -244,17 +245,17 @@ namespace BadJack
 			];
 
 		// change console's color
-		public static void SetConsole(ConsoleColor? foreground = ConsoleColor.White, ConsoleColor? background = null)
+		public static void SetColor(ConsoleColor? foreground = ConsoleColor.White, ConsoleColor? background = null)
 		{
 			Console.ResetColor();
 			if (foreground != null) Console.ForegroundColor = (ConsoleColor)foreground;
 			if (background != null) Console.BackgroundColor = (ConsoleColor)background;
 		}
 
-		// just an alias
-		public static void ClearConsole()
+		// just an alias for clear console color
+		public static void ClearColor()
 		{
-			SetConsole();
+			SetColor();
 		}
 	}
 
@@ -303,13 +304,13 @@ namespace BadJack
 				}
 			}
 			cards = cards.OrderBy(x => Guid.NewGuid()).ToList();
-			Color.SetConsole(ConsoleColor.White);
+			Write.SetColor(ConsoleColor.White);
 			Console.WriteLine("Il y a {0} cartes dans le paquet.", cards.Count);
 
 			// start
-			Color.SetConsole(ConsoleColor.White);
+			Write.SetColor(ConsoleColor.White);
 			Console.WriteLine("\n///////////////////\n///  blackjack  ///\n///////////////////\n");
-			Color.SetConsole(ConsoleColor.White);
+			Write.SetColor(ConsoleColor.White);
 			Console.WriteLine("Chacun pioche 2 cartes...");
 
 			// give cards
@@ -321,13 +322,13 @@ namespace BadJack
 
 			RoundEnd endReslut = Loop();
 
-			Color.ClearConsole();
+			Write.ClearColor();
 			Console.WriteLine("\nC'est fini !");
 			Thread.Sleep(2222);
 			playerHuman.Display(true);
 			playerComputer.Display(true);
 			Thread.Sleep(666);
-			Color.SetConsole(endReslut.color);
+			Write.SetColor(endReslut.color);
 			Console.WriteLine(endReslut.message);
 			return endReslut.factor;
 		}
@@ -343,9 +344,9 @@ namespace BadJack
 			bool jackHuman = playerHuman.score == Settings.objectiveScore;
 			if (jackComputer || jackHuman)
 			{
-				Color.SetConsole(ConsoleColor.Black, ConsoleColor.Yellow);
+				Write.SetColor(ConsoleColor.Black, ConsoleColor.Yellow);
 				Console.Write(" ! BLACKJACK ! ");
-				Color.ClearConsole();
+				Write.ClearColor();
 				Console.WriteLine("");
 				if (jackComputer && jackHuman)
 				{
@@ -374,7 +375,7 @@ namespace BadJack
 					{
 						if (looseHuman)
 						{
-							Color.SetConsole(ConsoleColor.Yellow);
+							Write.SetColor(ConsoleColor.Yellow);
 							Console.WriteLine("Vous avez tous les deux dépassés {0}...", Settings.objectiveScore);
 							return CalculateNearestEnd();
 						}
@@ -397,7 +398,7 @@ namespace BadJack
 					// no cards
 					if (cards.Count == 0)
 					{
-						Color.ClearConsole();
+						Write.ClearColor();
 						Console.WriteLine("apu de carte :(");
 						return CalculateNearestEnd();
 					}
@@ -408,20 +409,20 @@ namespace BadJack
 					{
 						Thread.Sleep(1111);
 
-						Color.ClearConsole();
+						Write.ClearColor();
 						Console.WriteLine("piocher ?");
-						Color.SetConsole(ConsoleColor.DarkGray);
+						Write.SetColor(ConsoleColor.DarkGray);
 						Console.WriteLine("o - ui\nn - nan");
 						Thread.Sleep(666);
 						string? choixJoueur;
 
 						while (true)
 						{
-							Color.SetConsole(ConsoleColor.Cyan);
+							Write.SetColor(ConsoleColor.Cyan);
 							choixJoueur = Console.ReadLine();
 							choixJoueur = choixJoueur?.ToUpper();
 							if (choixJoueur == "O" || choixJoueur == "N") break;
-							Color.SetConsole(ConsoleColor.Red);
+							Write.SetColor(ConsoleColor.Red);
 							Console.WriteLine("Saisir O ou N");
 						}
 
@@ -446,7 +447,7 @@ namespace BadJack
 					}
 					if (cards.Count == 0)
 					{
-						Color.SetConsole(ConsoleColor.White);
+						Write.SetColor(ConsoleColor.White);
 						Console.WriteLine("apu de carte :(");
 						return CalculateNearestEnd();
 					}
@@ -455,7 +456,7 @@ namespace BadJack
 					if (!stopOrdi)
 					{
 						Thread.Sleep(666);
-						Color.SetConsole(ConsoleColor.Blue);
+						Write.SetColor(ConsoleColor.Blue);
 						if (playerComputer.score <= 15)
 						{
 							Console.WriteLine("[ordi] je pioche");
@@ -501,7 +502,7 @@ namespace BadJack
 		{
 			while (true)
 			{
-				Color.SetConsole(ConsoleColor.Cyan);
+				Write.SetColor(ConsoleColor.Cyan);
 				string? inputString = Console.ReadLine();
 				int inputInt;
 				if (defaultValue != null && (inputString == null || inputString == ""))
@@ -510,7 +511,7 @@ namespace BadJack
 					return inputInt;
 				else
 				{
-					Color.SetConsole(ConsoleColor.Red);
+					Write.SetColor(ConsoleColor.Red);
 					Console.WriteLine("donne un nombre valide ({0}-{1})", inputMinIncluded, inputMaxIncluded);
 				}
 			}
@@ -522,9 +523,9 @@ namespace BadJack
 		static void SetSettings()
 		{
 			// pick name
-			Color.ClearConsole();
+			Write.ClearColor();
 			Console.WriteLine("donne ton nom ou c'est moi qui choisi");
-			Color.SetConsole(ConsoleColor.Cyan);
+			Write.SetColor(ConsoleColor.Cyan);
 			string? nameInput = Console.ReadLine();
 			if (!(nameInput == null || nameInput == "")) Settings.humanName = nameInput;
 
@@ -532,16 +533,16 @@ namespace BadJack
 			// pick cards of deck
 			List<string> aviableCards = [.. Settings.CardsAndPoints.Keys];
 			List<string> paquet = Settings.deckComposition;
-			Color.ClearConsole();
+			Write.ClearColor();
 			Console.WriteLine("voici le jeu de cartes :");
 			while (true)
 			{
 				// console
-				Color.SetConsole(ConsoleColor.Blue);
+				Write.SetColor(ConsoleColor.Blue);
 				Console.WriteLine(string.Join(" ", paquet));
-				Color.SetConsole(ConsoleColor.DarkGray);
+				Write.SetColor(ConsoleColor.DarkGray);
 				Console.WriteLine("<entrée> pour valider, ou en saisir un nouveau");
-				Color.SetConsole(ConsoleColor.Cyan);
+				Write.SetColor(ConsoleColor.Cyan);
 				string? inputed = Console.ReadLine();
 				// valid if nothing
 				if (inputed == null || inputed == "") break;
@@ -553,7 +554,7 @@ namespace BadJack
 				{
 					if (!aviableCards.Contains(v))
 					{
-						Color.SetConsole(ConsoleColor.Red);
+						Write.SetColor(ConsoleColor.Red);
 						Console.WriteLine("la carte [{0}] n'existe pas", v);
 						valid = false;
 					}
@@ -562,31 +563,31 @@ namespace BadJack
 				if (valid)
 				{
 					paquet = paquetProposed;
-					Color.ClearConsole();
+					Write.ClearColor();
 					Console.WriteLine("nouveau paquet :");
 				}
 			}
 			Settings.deckComposition = paquet;
 
 			// pick colors of deck
-			Color.ClearConsole();
+			Write.ClearColor();
 			Console.Write("choisir le nombre de couleurs ");
-			Color.SetConsole(ConsoleColor.DarkGray);
+			Write.SetColor(ConsoleColor.DarkGray);
 			Console.WriteLine("({0} par défaut)", Settings.deckColorAmount);
 			Settings.deckColorAmount = IntPut(0, 10, Settings.deckColorAmount);
 
 			// pick amount of deck
-			Color.ClearConsole();
+			Write.ClearColor();
 			Console.Write("choisir le nombre de paquets ");
-			Color.SetConsole(ConsoleColor.DarkGray);
+			Write.SetColor(ConsoleColor.DarkGray);
 			Console.WriteLine("({0} par défaut)", Settings.deckPileAmount);
 			Settings.deckPileAmount = IntPut(0, 42, Settings.deckPileAmount);
 
 			// start display
 			Thread.Sleep(666);
-			Color.SetConsole(ConsoleColor.Black, ConsoleColor.Yellow);
+			Write.SetColor(ConsoleColor.Black, ConsoleColor.Yellow);
 			Console.Write(" parviendras-tu à être millionaire ? ");
-			Color.SetConsole();
+			Write.SetColor();
 			Console.Write("\n\n");
 			Thread.Sleep(666);
 		}
@@ -610,10 +611,10 @@ namespace BadJack
 		
 		public static void exitDeptMessage()
 		{
-			Color.SetConsole(ConsoleColor.Red);
+			Write.SetColor(ConsoleColor.Red);
 			string randomMessage = Settings.deptMessages[random.Next(Settings.deptMessages.Count)];
 			Console.WriteLine(randomMessage, dept);
-			Color.ClearConsole();
+			Write.ClearColor();
 		}
 
 		static void Main(string[] args)
@@ -642,9 +643,9 @@ namespace BadJack
 			// money
 			Thread.Sleep(666);
 			if (money < Settings.minimumBet)
-				Color.SetConsole(ConsoleColor.Red);
+				Write.SetColor(ConsoleColor.Red);
 			else
-				Color.SetConsole(ConsoleColor.Yellow);
+				Write.SetColor(ConsoleColor.Yellow);
 			Console.WriteLine("tu as {0}$", money);
 			Thread.Sleep(666);
 
@@ -656,13 +657,13 @@ namespace BadJack
 				{
 					deptAction = true;
 					Thread.Sleep(1111);
-					Color.SetConsole(ConsoleColor.White, ConsoleColor.Green);
+					Write.SetColor(ConsoleColor.White, ConsoleColor.Green);
 					Console.Write("tu as réglé ta dette ! (-{0}$)", dept);
 					offDept();
-					Color.SetConsole();
+					Write.SetColor();
 					Console.WriteLine("");
 					Thread.Sleep(2222);
-					Color.SetConsole(ConsoleColor.Green);
+					Write.SetColor(ConsoleColor.Green);
 					Console.WriteLine("tu es libre de partir");
 				}
 				else
@@ -670,7 +671,7 @@ namespace BadJack
 					int intrest = (int)(dept * Settings.deptIntrestFactor) + Settings.deptIntrestAdd;
 					dept += intrest;
 					Thread.Sleep(1111);
-					Color.SetConsole(ConsoleColor.Red);
+					Write.SetColor(ConsoleColor.Red);
 					Console.WriteLine("ta dette est désormais à {0}$ (+{1}$ d'intrérêts)", dept, intrest);
 				}
 			}
@@ -683,31 +684,31 @@ namespace BadJack
 				onDept(amount);
 				int intrest = (int)(dept * Settings.deptActiviationFactor) + Settings.deptActiviationAdd;
 				dept += intrest;
-				Color.SetConsole(ConsoleColor.Black, ConsoleColor.Red);
+				Write.SetColor(ConsoleColor.Black, ConsoleColor.Red);
 				Thread.Sleep(2222);
 				Console.Write("tu n'as plus assez d'argent! ");
-				Color.ClearConsole();
+				Write.ClearColor();
 				Console.WriteLine("");
 				if (wasUndepted)
 				{
 					Thread.Sleep(2222);
-					Color.SetConsole(ConsoleColor.Red);
+					Write.SetColor(ConsoleColor.Red);
 					Console.WriteLine("la gambling addicition t'as vaincue.");
 					Thread.Sleep(2222);
-					Color.SetConsole(ConsoleColor.Red);
+					Write.SetColor(ConsoleColor.Red);
 					Console.WriteLine("tu fais un emprunt de {0}$ pour continuer. (+{1}$ à rebourser)", amount, intrest);
 				}
 				else
 				{
 					Thread.Sleep(2222);
-					Color.SetConsole(ConsoleColor.Red);
+					Write.SetColor(ConsoleColor.Red);
 					Console.WriteLine("la gambling addicition t'as encore vaincue.");
 					Thread.Sleep(2222);
-					Color.SetConsole(ConsoleColor.Red);
+					Write.SetColor(ConsoleColor.Red);
 					Console.WriteLine("tu fais un emprunt de {0}$ supplémentaires. (dette totale de {1}$)", amount, dept);
 				}
 				Thread.Sleep(1111);
-				Color.SetConsole(ConsoleColor.Red);
+				Write.SetColor(ConsoleColor.Red);
 				Console.WriteLine("tu devera régler cette dette avant de partir.");
 			}
 
@@ -716,9 +717,9 @@ namespace BadJack
 				// money
 				Thread.Sleep(1111);
 				if (money < Settings.minimumBet)
-					Color.SetConsole(ConsoleColor.Red);
+					Write.SetColor(ConsoleColor.Red);
 				else
-					Color.SetConsole(ConsoleColor.Yellow);
+					Write.SetColor(ConsoleColor.Yellow);
 				Console.WriteLine("tu as maintenant {0}$", money);
 			}
 		}
@@ -726,9 +727,9 @@ namespace BadJack
 		static void GameBet()
 		{
 			// bet
-			Color.SetConsole();
+			Write.SetColor();
 			Console.Write("combien tu veux miser ?");
-			Color.SetConsole(ConsoleColor.DarkGray);
+			Write.SetColor(ConsoleColor.DarkGray);
 			Console.WriteLine(" attention à la banqueroute !");
 			bet = IntPut(Settings.minimumBet, money);
 		}
