@@ -176,7 +176,7 @@ namespace BadJack
 				startIndex = 1;
 			}
 
-			for (int i = pile.Count - 1; i >= startIndex; i--)
+			for (int i = startIndex; i < pile.Count; i++)
 			{
 				pile[i].Display();
 				Color.ClearConsole();
