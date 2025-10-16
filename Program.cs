@@ -109,7 +109,7 @@ namespace BadJack
 
 			Card cardTop = paquet.First();
 			pile.Add(cardTop);
-			if (cardTop.IsValue("1"))
+			if (cardTop.IsValue("A"))
 			{//ace score pick
 				Color.SetConsole(ConsoleColor.Yellow);
 				Console.Write("voilà un as pour {0} !", name);
