@@ -701,7 +701,7 @@ namespace BadJack
 
 	class Invicible
 	{
-		static Action cancelAction = Game.deptMessage;
+		static Action cancelAction = Game.exitDeptMessage;
 
 		private delegate bool CancelExitDelegate(int eventType);
 		private static CancelExitDelegate _handler = new(CancelExit);
