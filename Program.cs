@@ -244,21 +244,30 @@ namespace BadJack
 			ConsoleColor.Green, ConsoleColor.Magenta, ConsoleColor.Red, ConsoleColor.White, ConsoleColor.Yellow
 			];
 
-		public static void Speak(string message)
+		// private write
+		public static void Speaking(string message)
 		{
 			Console.Write(message);
 		}
-		public static void Speak(string message, params object[]? args)
+
+		// write interfaces
+		public static void Speak(string message)
 		{
-			Console.Write(message, args);
+			Speaking(message);
+		}
+		public static void Speak(string message, params object[] args)
+		{
+			message = string.Format(message, args);
+			Speaking(message);
 		}
 		public static void SpeakLine(string message)
 		{
-			Console.WriteLine(message);
+			Speaking(message);
 		}
-		public static void SpeakLine(string message, params object[]? args)
+		public static void SpeakLine(string message, params object[] args)
 		{
-			Console.WriteLine(message, args);
+			message = string.Format(message, args);
+			Speaking(message);
 		}
 
 		// change console's color
