@@ -6,7 +6,11 @@ namespace BadJack
 {
 	class Settings
 	{
-		// here if you want to change basic blackjack rule
+		// here if you want to change basic rule
+		public static int objectiveScore = 21;
+		public static int startingMoney = 1000;
+		public static int deptAmount = 500;
+
 
 		// here if you want to add a card
 		public static Dictionary<string, int> CardsAndPoints = new Dictionary<string, int>()
@@ -312,8 +316,8 @@ namespace BadJack
 			bool stopOrdi = false;
 
 			// blackjack checks
-			bool jackComputer = playerComputer.score == 21;
-			bool jackHuman = playerHuman.score == 21;
+			bool jackComputer = playerComputer.score == Settings.objectiveScore;
+			bool jackHuman = playerHuman.score == Settings.objectiveScore;
 			if (jackComputer || jackHuman)
 			{
 				Color.SetConsole(ConsoleColor.Black, ConsoleColor.Yellow);
@@ -340,26 +344,26 @@ namespace BadJack
 				while (true)
 				{
 					// endgame triggers
-					bool looseComputer = playerComputer.score > 21;
-					bool looseHuman = playerHuman.score > 21;
+					bool looseComputer = playerComputer.score > Settings.objectiveScore;
+					bool looseHuman = playerHuman.score > Settings.objectiveScore;
 
 					if (looseComputer)
 					{
 						if (looseHuman)
 						{
 							Color.SetConsole(ConsoleColor.Yellow);
-							Console.WriteLine("Vous avez tous les deux dépassés 21...");
+							Console.WriteLine("Vous avez tous les deux dépassés {0}...", Settings.objectiveScore);
 							return CalculateNearestEnd();
 						}
 						else
 						{
-							return new RoundEnd(2, ConsoleColor.Green, "L'ordi a dépassé 21, bien joué !");
+							return new RoundEnd(2, ConsoleColor.Green, "L'ordi a dépassé "+Settings.objectiveScore+", bien joué !");
 						}
 					}
 
 					if (looseHuman)
 					{
-						return new RoundEnd(0, ConsoleColor.Red, "Tu as dépassé 21, trop nul...");
+						return new RoundEnd(0, ConsoleColor.Red, "Tu as dépassé "+Settings.objectiveScore+", trop nul...");
 					}
 
 					if (stopJoueur && stopOrdi)
@@ -446,8 +450,8 @@ namespace BadJack
 
 		RoundEnd CalculateNearestEnd()
 		{//happening when both stop or no more cards
-			int playerComputerDiff = Math.Abs(playerComputer.score - 21);
-			int playerHumanDiff = Math.Abs(playerHuman.score - 21);
+			int playerComputerDiff = Math.Abs(playerComputer.score - Settings.objectiveScore);
+			int playerHumanDiff = Math.Abs(playerHuman.score - Settings.objectiveScore);
 			if (playerComputerDiff < playerHumanDiff)
 			{
 				return new RoundEnd(0, ConsoleColor.Red, "L'ordinateur t'as roulé dessus...");
@@ -580,7 +584,7 @@ namespace BadJack
 			{
 				SetSettings();
 
-				money = 100;
+				money = Settings.startingMoney;
 
 				while (true)
 				{
@@ -644,7 +648,7 @@ namespace BadJack
 				if (money < 10)
 				{
 					deptAction = true;
-					int amount = 100;
+					int amount = Settings.deptAmount;
 					bool wasUndepted = dept == 0;
 					onDept(amount);
 					int intrest = (int)(dept * Settings.deptActiviationFactor) + Settings.deptActiviationAdd;
