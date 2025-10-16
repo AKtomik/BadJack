@@ -9,6 +9,7 @@ namespace BadJack
 		// here if you want to change basic rule
 		public static int objectiveScore = 21;
 		public static int startingMoney = 1000;
+		public static int minimumBet = 100;
 		public static int deptAmount = 500;
 		
 		// here if you want to change some detailed rules
@@ -586,7 +587,7 @@ namespace BadJack
 		static int dept = 0;
 		static int bet;
 
-		static void onDept(int amout = 100)
+		static void onDept(int amout)
 		{
 			dept += amout;
 			money += amout;
@@ -632,7 +633,7 @@ namespace BadJack
 		{
 			// money
 			Thread.Sleep(666);
-			if (money < 10)
+			if (money < Settings.minimumBet)
 				Color.SetConsole(ConsoleColor.Red);
 			else
 				Color.SetConsole(ConsoleColor.Yellow);
@@ -643,7 +644,7 @@ namespace BadJack
 			bool deptAction = false;
 			if (dept > 0)
 			{
-				if (money - 10 >= dept)
+				if (money - Settings.minimumBet >= dept)
 				{
 					deptAction = true;
 					Thread.Sleep(1111);
@@ -666,7 +667,7 @@ namespace BadJack
 				}
 			}
 
-			if (money < 10)
+			if (money < Settings.minimumBet)
 			{
 				deptAction = true;
 				int amount = Settings.deptAmount;
@@ -706,7 +707,7 @@ namespace BadJack
 			{
 				// money
 				Thread.Sleep(1111);
-				if (money < 10)
+				if (money < Settings.minimumBet)
 					Color.SetConsole(ConsoleColor.Red);
 				else
 					Color.SetConsole(ConsoleColor.Yellow);
@@ -721,7 +722,7 @@ namespace BadJack
 			Console.Write("combien tu veux miser ?");
 			Color.SetConsole(ConsoleColor.DarkGray);
 			Console.WriteLine(" attention à la banqueroute !");
-			bet = IntPut(10, money);
+			bet = IntPut(Settings.minimumBet, money);
 		}
 	}
 
