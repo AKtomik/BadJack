@@ -581,6 +581,14 @@ namespace BadJack
 			Color.SetConsole(ConsoleColor.DarkGray);
 			Console.WriteLine("({0} par défaut)", Settings.deckPileAmount);
 			Settings.deckPileAmount = IntPut(0, 42, Settings.deckPileAmount);
+
+			// start display
+			Thread.Sleep(666);
+			Color.SetConsole(ConsoleColor.Black, ConsoleColor.Yellow);
+			Console.Write(" parviendras-tu à être millionaire ? ");
+			Color.SetConsole();
+			Console.Write("\n\n");
+			Thread.Sleep(666);
 		}
 
 		static int money;
