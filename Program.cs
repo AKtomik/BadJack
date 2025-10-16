@@ -39,10 +39,10 @@ namespace BadJack
 			new("♦", ConsoleColor.White, ConsoleColor.DarkRed),
 			new("♣", ConsoleColor.Black, ConsoleColor.DarkGray),
 			// negative suits
-			new("♡", ConsoleColor.White, ConsoleColor.DarkRed),
-			new("♤", ConsoleColor.Black, ConsoleColor.DarkGray),
-			new("♢", ConsoleColor.White, ConsoleColor.DarkRed),
-			new("♧", ConsoleColor.Black, ConsoleColor.DarkGray),
+			new("♡", ConsoleColor.White, ConsoleColor.DarkGreen),
+			new("♤", ConsoleColor.Black, ConsoleColor.Cyan),
+			new("♢", ConsoleColor.White, ConsoleColor.DarkBlue),
+			new("♧", ConsoleColor.Black, ConsoleColor.Magenta),
 			// funny suits
 			new("☺", ConsoleColor.Black, ConsoleColor.Yellow),
 			new("☠", ConsoleColor.Black, ConsoleColor.White),
@@ -56,7 +56,7 @@ namespace BadJack
 
 		// other custom settings
 		public static double deptActiviationFactor = 0;
-		public static int deptActiviationAdd = 10;
+		public static int deptActiviationAdd = 5;
 		public static double deptIntrestFactor = 0.05;
 		public static int deptIntrestAdd = 0;
 		public static List<string> deptMessages = [
@@ -622,9 +622,9 @@ namespace BadJack
 				bool deptAction = false;
 				if (dept > 0)
 				{
-					deptAction = true;
 					if (money - 10 >= dept)
 					{
+						deptAction = true;
 						Thread.Sleep(1111);
 						Color.SetConsole(ConsoleColor.White, ConsoleColor.Green);
 						Console.Write("tu as réglé ta dette ! (-{0}$)", dept);
@@ -641,7 +641,7 @@ namespace BadJack
 						dept += intrest;
 						Thread.Sleep(1111);
 						Color.SetConsole(ConsoleColor.Red);
-						Console.WriteLine("ta dette est désormais à {0}$ (dont {1}$ d'intrérêts)", dept, intrest);
+						Console.WriteLine("ta dette est désormais à {0}$ (+{1}$ d'intrérêts)", dept, intrest);
 					}
 				}
 				
