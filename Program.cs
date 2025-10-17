@@ -76,9 +76,12 @@ namespace BadJack
 			"tu resteras ici tant que tu n'as pas reboursé les {0}$ !",
 		];
 
-		public static List<string> randomBotName = new List<string> { 
+		public static List<string> randomBotName = new List<string> {
 			"CrazyBot","CrazyVerno","Sheeesh","CrazyScale","CrazyTismé","CrazyMillionaire","WoodyWoodpecker","CrazyValet","CrazyAnge", "CrazySteiro"
 			};
+
+		public static int WaitSpeakLetter = 10;
+		public static int WaitSpeakSpace = 100;
 	}
 
 	class Player
@@ -129,7 +132,7 @@ namespace BadJack
 							input = Console.ReadLine();
 							if (input == "1" || input == "11") break;
 							Write.SetColor(ConsoleColor.Red);
-							Write.SpeakLine("Saisir 1 ou 11");
+							Write.PrintLine("Saisir 1 ou 11");
 						}
 					}
 					else
@@ -247,8 +250,19 @@ namespace BadJack
 		// private write
 		public static void Speaking(string message)
 		{
+			//Console.Write(message);
+			foreach (char letter in message)
+			{
+				Console.Write(letter);
+				Thread.Sleep((letter == ' ') ? Settings.WaitSpeakSpace : Settings.WaitSpeakLetter);
+			}
+		}
+
+		public static void Printing(string message)
+		{
 			Console.Write(message);
 		}
+		
 		public static void JumpLine()
 		{
 			ConsoleColor ForegroundColor = Console.ForegroundColor;
@@ -278,6 +292,27 @@ namespace BadJack
 		{
 			message = string.Format(message, args);
 			Speaking(message);
+			JumpLine();
+		}
+		
+		public static void Print(string message)
+		{
+			Printing(message);
+		}
+		public static void Print(string message, params object[] args)
+		{
+			message = string.Format(message, args);
+			Printing(message);
+		}
+		public static void PrintLine(string message)
+		{
+			Printing(message);
+			JumpLine();
+		}
+		public static void PrintLine(string message, params object[] args)
+		{
+			message = string.Format(message, args);
+			Printing(message);
 			JumpLine();
 		}
 
@@ -460,7 +495,7 @@ namespace BadJack
 							choixJoueur = choixJoueur?.ToUpper();
 							if (choixJoueur == "O" || choixJoueur == "N") break;
 							Write.SetColor(ConsoleColor.Red);
-							Write.SpeakLine("Saisir O ou N");
+							Write.PrintLine("Saisir O ou N");
 						}
 
 						if (choixJoueur == "O")
@@ -549,7 +584,7 @@ namespace BadJack
 				else
 				{
 					Write.SetColor(ConsoleColor.Red);
-					Write.SpeakLine("donne un nombre valide ({0}-{1})", inputMinIncluded, inputMaxIncluded);
+					Write.PrintLine("donne un nombre valide ({0}-{1})", inputMinIncluded, inputMaxIncluded);
 				}
 			}
 		}
@@ -576,7 +611,7 @@ namespace BadJack
 			{
 				// console
 				Write.SetColor(ConsoleColor.Blue);
-				Write.SpeakLine(string.Join(" ", paquet));
+				Write.PrintLine(string.Join(" ", paquet));
 				Write.SetColor(ConsoleColor.DarkGray);
 				Write.SpeakLine("<entrée> pour valider, ou en saisir un nouveau");
 				Write.SetColor(ConsoleColor.Cyan);
@@ -650,7 +685,7 @@ namespace BadJack
 		{
 			Write.SetColor(ConsoleColor.Red);
 			string randomMessage = Settings.deptMessages[random.Next(Settings.deptMessages.Count)];
-			Write.SpeakLine(randomMessage, dept);
+			Write.PrintLine(randomMessage, dept);
 			Write.ClearColor();
 		}
 
