@@ -381,7 +381,7 @@ namespace BadJack
 
 			// start
 			Write.SetColor(ConsoleColor.White);
-			Write.SpeakLine("\n///////////////////\n///  blackjack  ///\n///////////////////\n");
+			Write.PrintLine("\n///////////////////\n///  blackjack  ///\n///////////////////\n");
 			Write.SetColor(ConsoleColor.White);
 			Write.SpeakLine("Chacun pioche 2 cartes...");
 
@@ -734,7 +734,7 @@ namespace BadJack
 					offDept();
 					Write.SetColor();
 					Write.SpeakLine("");
-					Thread.Sleep(2222);
+					Thread.Sleep(1111);
 					Write.SetColor(ConsoleColor.Green);
 					Write.SpeakLine("tu es libre de partir");
 				}
@@ -757,30 +757,26 @@ namespace BadJack
 				int intrest = (int)(dept * Settings.deptActiviationFactor) + Settings.deptActiviationAdd;
 				dept += intrest;
 				Write.SetColor(ConsoleColor.Black, ConsoleColor.Red);
-				Thread.Sleep(2222);
+				Thread.Sleep(1111);
 				Write.Speak("tu n'as plus assez d'argent! ");
 				Write.ClearColor();
 				Write.SpeakLine("");
+				Write.SetColor(ConsoleColor.Red);
 				if (wasUndepted)
 				{
-					Thread.Sleep(2222);
-					Write.SetColor(ConsoleColor.Red);
+					Thread.Sleep(1111);
 					Write.SpeakLine("la gambling addicition t'as vaincue.");
-					Thread.Sleep(2222);
-					Write.SetColor(ConsoleColor.Red);
+					Thread.Sleep(1111);
 					Write.SpeakLine("tu fais un emprunt de {0}$ pour continuer. (+{1}$ à rebourser)", amount, intrest);
 				}
 				else
 				{
-					Thread.Sleep(2222);
-					Write.SetColor(ConsoleColor.Red);
+					Thread.Sleep(666);
 					Write.SpeakLine("la gambling addicition t'as encore vaincue.");
-					Thread.Sleep(2222);
-					Write.SetColor(ConsoleColor.Red);
+					Thread.Sleep(666);
 					Write.SpeakLine("tu fais un emprunt de {0}$ supplémentaires. (dette totale de {1}$)", amount, dept);
 				}
 				Thread.Sleep(1111);
-				Write.SetColor(ConsoleColor.Red);
 				Write.SpeakLine("tu devera régler cette dette avant de partir.");
 			}
 
