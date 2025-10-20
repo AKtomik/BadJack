@@ -13,9 +13,9 @@ namespace BadJack
 		public static int deptAmount = 500;
 
 		// here if you want to change some detailed rules
-		public static bool botDrawIfPlayerFail = true;
+		public static bool botDrawIfPlayerFail = false;
 		public static bool ifPickableAce = true;
-		public static bool ifBotPickSmartAce = false;
+		public static bool ifBotPickSmartAce = true;
 
 
 		// here if you want to add a card
