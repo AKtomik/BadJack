@@ -79,6 +79,10 @@ namespace BadJack
 			"Tu n'as pas le droit de partir, rembourse les {0}$ !",
 			"Règle tes dettes avant de partir, il te reste {0}$ de dettes !",
 			"Tu resteras ici tant que tu n'as pas remboursé les {0}$ !",
+			"Tu es à découvert de {0}$, tu ne peux pas partir !",
+			"La banque va t'envoyer un chasseur de prime si tu ne rembourse pas les {0}$ !",
+			"Tu dois rembourser {0}$, DETERMINATION !",
+			"Tu dois rembourser {0}$ en jouant encore plus !",
 		];
 
 		public static List<string> randomBotName = new List<string> {
@@ -386,7 +390,7 @@ namespace BadJack
 
 			// start
 			Write.SetColor(ConsoleColor.White);
-			Write.PrintLine("\n///////////////////\n///	blackjack	///\n///////////////////\n");
+			Write.PrintLine("\n///////////////////\n///  blackjack  ///\n///////////////////\n");
 			Write.SetColor(ConsoleColor.White);
 			Write.SpeakLine("Chacun pioche 2 cartes...");
 
