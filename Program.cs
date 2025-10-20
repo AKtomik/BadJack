@@ -11,7 +11,7 @@ namespace BadJack
 		public static int startingMoney = 1000;
 		public static int minimumBet = 100;
 		public static int deptAmount = 500;
-		
+
 		// here if you want to change some detailed rules
 		public static bool botDrawIfPlayerFail = true;
 		public static bool ifPickableAce = true;
@@ -56,7 +56,7 @@ namespace BadJack
 
 		// settings you can edit in terminal
 		public static List<string> deckComposition = CardsAndPoints.Keys.ToList();
-		public static string humanName = "un humain trop nul";
+		public static string humanName = "Un humain trop nul";
 		public static int deckColorAmount = 4;
 		public static int deckPileAmount = 2;
 
@@ -66,18 +66,18 @@ namespace BadJack
 		public static double deptIntrestFactor = 0.05;
 		public static int deptIntrestAdd = 0;
 		public static List<string> deptMessages = [
-			"tu veux partir? tu n'as qu'à pas être PAUVRE !",
-			"tu dois {0}$ à la banque, par le droit d'abandonner !",
-			"il est illégal de partir, tu dois {0}$ à la banque !",
-			"rembourse les {0}$ que tu as empruntés avant !",
-			"tu as devoir gamble jusqu'à rembourser {0}$ !",
-			"tu n'as pas le droit de partir, rembourse les {0}$ !",
-			"règle tes dettes avant de partir, il te reste {0}$ de dettes !",
-			"tu resteras ici tant que tu n'as pas reboursé les {0}$ !",
+			"Tu veux partir? Tu n'as qu'à pas être PAUVRE !",
+			"Tu dois {0}$ à la banque, par le droit d'abandonner !",
+			"Il est illégal de partir, tu dois {0}$ à la banque !",
+			"Rembourse les {0}$ que tu as empruntés avant !",
+			"Tu vas devoir gamble jusqu'à rembourser {0}$ !",
+			"Tu n'as pas le droit de partir, rembourse les {0}$ !",
+			"Règle tes dettes avant de partir, il te reste {0}$ de dettes !",
+			"Tu resteras ici tant que tu n'as pas remboursé les {0}$ !",
 		];
 
 		public static List<string> randomBotName = new List<string> {
-			"CrazyBot","CrazyVerno","Sheeesh","CrazyScale","CrazyTismé","CrazyMillionaire","WoodyWoodpecker","CrazyValet","CrazyAnge", "CrazySteiro"
+			"CrazyBot","CrazyVerno","Sheeesh","CrazyScale","CrazyTismé","CrazyMillionaire","WoodyWoodpecker","CrazyValet","CrazyAnge", "CrazySteiro", "Beep-Boop", "El Robotito", 
 			};
 
 		public static int WaitSpeakLetter = 10;
@@ -88,11 +88,11 @@ namespace BadJack
 	{
 		List<Card> pile;
 		public int score;
-		string name;
+		public string name;
 		bool willChoose;
 		ConsoleColor color;
 
-		public Player(bool willChoose = false, string name = "no name guy", ConsoleColor color = ConsoleColor.White)
+		public Player(bool willChoose = false, string name = "No-name guy", ConsoleColor color = ConsoleColor.White)
 		{
 			this.pile = new List<Card>();
 			this.score = 0;
@@ -116,12 +116,12 @@ namespace BadJack
 			if (cardTop.IsValue("A"))
 			{//ace score pick
 				Write.SetColor(ConsoleColor.Yellow);
-				Write.Speak("voilà un as pour {0} !", name);
+				Write.Speak("Voilà un as pour {0} !", name);
 				Write.SetColor(ConsoleColor.DarkGray);
 
 				if (Settings.ifPickableAce)
 				{//else smart for everyone
-					Write.SpeakLine(" Il vaut 1 ou 11?");
+					Write.SpeakLine("Il vaut 1 ou 11?");
 					string? input;
 
 					if (willChoose)
@@ -262,7 +262,7 @@ namespace BadJack
 		{
 			Console.Write(message);
 		}
-		
+
 		public static void JumpLine()
 		{
 			ConsoleColor ForegroundColor = Console.ForegroundColor;
@@ -294,7 +294,7 @@ namespace BadJack
 			Speaking(message);
 			JumpLine();
 		}
-		
+
 		public static void Print(string message)
 		{
 			Printing(message);
@@ -422,7 +422,7 @@ namespace BadJack
 				Write.SpeakLine("");
 				if (jackComputer && jackHuman)
 				{
-					return new RoundEnd(1, ConsoleColor.Yellow, "L'ordi et toi avez blackjack!!!! vous avez trichés??");
+					return new RoundEnd(1, ConsoleColor.Yellow, "L'ordi et toi avez blackjack !!!! vous avez trichés??");
 				}
 				else if (jackComputer)
 				{
@@ -453,13 +453,13 @@ namespace BadJack
 						}
 						else
 						{
-							return new RoundEnd(2, ConsoleColor.Green, "L'ordi a dépassé "+Settings.objectiveScore+", bien joué !");
+							return new RoundEnd(2, ConsoleColor.Green, "L'ordi a dépassé " + Settings.objectiveScore + ", bien joué !");
 						}
 					}
 
 					if (looseHuman)
 					{
-						return new RoundEnd(0, ConsoleColor.Red, "Tu as dépassé "+Settings.objectiveScore+", trop nul...");
+						return new RoundEnd(0, ConsoleColor.Red, "Tu as dépassé " + Settings.objectiveScore + ", trop nul...");
 					}
 
 					if (stopJoueur && stopOrdi)
@@ -471,7 +471,7 @@ namespace BadJack
 					if (cards.Count == 0)
 					{
 						Write.ClearColor();
-						Write.SpeakLine("apu de carte :(");
+						Write.SpeakLine("Yapu de carte :(");
 						return CalculateNearestEnd();
 					}
 
@@ -482,7 +482,7 @@ namespace BadJack
 						Thread.Sleep(1111);
 
 						Write.ClearColor();
-						Write.SpeakLine("piocher ?");
+						Write.SpeakLine("Piocher ?");
 						Write.SetColor(ConsoleColor.DarkGray);
 						Write.SpeakLine("o - ui\nn - nan");
 						Thread.Sleep(666);
@@ -500,12 +500,12 @@ namespace BadJack
 
 						if (choixJoueur == "O")
 						{
-							Write.SpeakLine("[joueur] je pioche");
+							Write.SpeakLine("[{0}] : Je pioche", playerHuman.name);
 							playerHuman.Draw(cards);
 						}
 						else
 						{
-							Write.SpeakLine("[joueur] je m'arrête");
+							Write.SpeakLine("[{0}] : Je m'arrête", playerHuman.name);
 							stopJoueur = true;
 						}
 					}
@@ -515,12 +515,12 @@ namespace BadJack
 					// middle checks
 					if (!Settings.botDrawIfPlayerFail && playerHuman.score > Settings.objectiveScore)
 					{
-						return new RoundEnd(0, ConsoleColor.Red, "Tu as dépassé "+Settings.objectiveScore+", trop nul...");
+						return new RoundEnd(0, ConsoleColor.Red, "Tu as dépassé " + Settings.objectiveScore + ", trop nul...");
 					}
 					if (cards.Count == 0)
 					{
 						Write.SetColor(ConsoleColor.White);
-						Write.SpeakLine("apu de carte :(");
+						Write.SpeakLine("Yapu de carte :(");
 						return CalculateNearestEnd();
 					}
 
@@ -531,12 +531,12 @@ namespace BadJack
 						Write.SetColor(ConsoleColor.Blue);
 						if (playerComputer.score <= 15)
 						{
-							Write.SpeakLine("[ordi] je pioche");
+							Write.SpeakLine("[{0}] : Je pioche", playerComputer.name);
 							playerComputer.Draw(cards);
 						}
 						else
 						{
-							Write.SpeakLine("[ordi] je m'arrête");
+							Write.SpeakLine("[{0}] : Je m'arrête", playerComputer.name);
 							stopOrdi = true;
 						}
 					}
@@ -562,7 +562,7 @@ namespace BadJack
 			}
 			else
 			{
-				return new RoundEnd(1, ConsoleColor.Yellow, "Personne n'a gangné...");
+				return new RoundEnd(1, ConsoleColor.Yellow, "Personne n'a gagné...");
 			}
 		}
 	}
@@ -584,7 +584,7 @@ namespace BadJack
 				else
 				{
 					Write.SetColor(ConsoleColor.Red);
-					Write.PrintLine("donne un nombre valide ({0}-{1})", inputMinIncluded, inputMaxIncluded);
+					Write.PrintLine("Donne un nombre valide ({0}-{1})", inputMinIncluded, inputMaxIncluded);
 				}
 			}
 		}
@@ -596,7 +596,7 @@ namespace BadJack
 		{
 			// pick name
 			Write.ClearColor();
-			Write.SpeakLine("donne ton nom ou c'est moi qui choisi");
+			Write.SpeakLine("Donne ton nom ou c'est moi qui choisis");
 			Write.SetColor(ConsoleColor.Cyan);
 			string? nameInput = Console.ReadLine();
 			if (!(nameInput == null || nameInput == "")) Settings.humanName = nameInput;
@@ -606,14 +606,14 @@ namespace BadJack
 			List<string> aviableCards = [.. Settings.CardsAndPoints.Keys];
 			List<string> paquet = Settings.deckComposition;
 			Write.ClearColor();
-			Write.SpeakLine("voici le jeu de cartes :");
+			Write.SpeakLine("Voici le jeu de cartes :");
 			while (true)
 			{
 				// console
 				Write.SetColor(ConsoleColor.Blue);
 				Write.PrintLine(string.Join(" ", paquet));
 				Write.SetColor(ConsoleColor.DarkGray);
-				Write.SpeakLine("<entrée> pour valider, ou en saisir un nouveau");
+				Write.SpeakLine("Appuyez sur <entrée> pour valider, ou en saisir un nouveau");
 				Write.SetColor(ConsoleColor.Cyan);
 				string? inputed = Console.ReadLine();
 				// valid if nothing
@@ -627,7 +627,7 @@ namespace BadJack
 					if (!aviableCards.Contains(v))
 					{
 						Write.SetColor(ConsoleColor.Red);
-						Write.SpeakLine("la carte [{0}] n'existe pas", v);
+						Write.SpeakLine("La carte [{0}] n'existe pas", v);
 						valid = false;
 					}
 				}
@@ -636,21 +636,21 @@ namespace BadJack
 				{
 					paquet = paquetProposed;
 					Write.ClearColor();
-					Write.SpeakLine("nouveau paquet :");
+					Write.SpeakLine("Nouveau paquet :");
 				}
 			}
 			Settings.deckComposition = paquet;
 
 			// pick colors of deck
 			Write.ClearColor();
-			Write.Speak("choisir le nombre de couleurs ");
+			Write.Speak("Choisir le nombre de couleurs ");
 			Write.SetColor(ConsoleColor.DarkGray);
 			Write.SpeakLine("({0} par défaut)", Settings.deckColorAmount);
 			Settings.deckColorAmount = IntPut(0, 10, Settings.deckColorAmount);
 
 			// pick amount of deck
 			Write.ClearColor();
-			Write.Speak("choisir le nombre de paquets ");
+			Write.Speak("Choisir le nombre de paquets ");
 			Write.SetColor(ConsoleColor.DarkGray);
 			Write.SpeakLine("({0} par défaut)", Settings.deckPileAmount);
 			Settings.deckPileAmount = IntPut(0, 42, Settings.deckPileAmount);
@@ -658,7 +658,7 @@ namespace BadJack
 			// start display
 			Thread.Sleep(666);
 			Write.SetColor(ConsoleColor.Black, ConsoleColor.Yellow);
-			Write.Speak(" parviendras-tu à être millionaire ? ");
+			Write.Speak(" Parviendras-tu à être millionaire ? ");
 			Write.SetColor();
 			Write.Speak("\n\n");
 			Thread.Sleep(666);
@@ -680,7 +680,7 @@ namespace BadJack
 			dept = 0;
 			Invicible.Off();
 		}
-		
+
 		public static void exitDeptMessage()
 		{
 			Write.SetColor(ConsoleColor.Red);
@@ -718,7 +718,7 @@ namespace BadJack
 				Write.SetColor(ConsoleColor.Red);
 			else
 				Write.SetColor(ConsoleColor.Yellow);
-			Write.SpeakLine("tu as {0}$", money);
+			Write.SpeakLine("Tu as {0}$", money);
 			Thread.Sleep(666);
 
 			// dept
@@ -730,13 +730,13 @@ namespace BadJack
 					deptAction = true;
 					Thread.Sleep(1111);
 					Write.SetColor(ConsoleColor.White, ConsoleColor.Green);
-					Write.Speak("tu as réglé ta dette ! (-{0}$)", dept);
+					Write.Speak("Tu as réglé ta dette ! (-{0}$)", dept);
 					offDept();
 					Write.SetColor();
 					Write.SpeakLine("");
 					Thread.Sleep(1111);
 					Write.SetColor(ConsoleColor.Green);
-					Write.SpeakLine("tu es libre de partir");
+					Write.SpeakLine("Tu es libre de partir");
 				}
 				else
 				{
@@ -744,7 +744,7 @@ namespace BadJack
 					dept += intrest;
 					Thread.Sleep(1111);
 					Write.SetColor(ConsoleColor.Red);
-					Write.SpeakLine("ta dette est désormais à {0}$ (+{1}$ d'intrérêts)", dept, intrest);
+					Write.SpeakLine("Ta dette est désormais à {0}$ (+{1}$ d'intérêts)", dept, intrest);
 				}
 			}
 
@@ -758,26 +758,26 @@ namespace BadJack
 				dept += intrest;
 				Write.SetColor(ConsoleColor.Black, ConsoleColor.Red);
 				Thread.Sleep(1111);
-				Write.Speak("tu n'as plus assez d'argent! ");
+				Write.Speak("Tu n'as plus assez d'argent!");
 				Write.ClearColor();
 				Write.SpeakLine("");
 				Write.SetColor(ConsoleColor.Red);
 				if (wasUndepted)
 				{
 					Thread.Sleep(1111);
-					Write.SpeakLine("la gambling addicition t'as vaincue.");
+					Write.SpeakLine("La gambling addicition t'as vaincue.");
 					Thread.Sleep(1111);
-					Write.SpeakLine("tu fais un emprunt de {0}$ pour continuer. (+{1}$ à rebourser)", amount, intrest);
+					Write.SpeakLine("Tu fais un emprunt de {0}$ pour continuer. (+{1}$ à rebourser)", amount, intrest);
 				}
 				else
 				{
 					Thread.Sleep(666);
-					Write.SpeakLine("la gambling addicition t'as encore vaincue.");
+					Write.SpeakLine("La gambling addicition t'as encore vaincue.");
 					Thread.Sleep(666);
-					Write.SpeakLine("tu fais un emprunt de {0}$ supplémentaires. (dette totale de {1}$)", amount, dept);
+					Write.SpeakLine("Tu fais un emprunt de {0}$ supplémentaires. (dette totale de {1}$)", amount, dept);
 				}
 				Thread.Sleep(1111);
-				Write.SpeakLine("tu devera régler cette dette avant de partir.");
+				Write.SpeakLine("Tu devras régler cette dette avant de partir.");
 			}
 
 			if (deptAction)
@@ -788,7 +788,7 @@ namespace BadJack
 					Write.SetColor(ConsoleColor.Red);
 				else
 					Write.SetColor(ConsoleColor.Yellow);
-				Write.SpeakLine("tu as maintenant {0}$", money);
+				Write.SpeakLine("Tu as maintenant {0}$", money);
 			}
 		}
 
@@ -796,9 +796,9 @@ namespace BadJack
 		{
 			// bet
 			Write.SetColor();
-			Write.Speak("combien tu veux miser ?");
+			Write.Speak("Combien veux-tu miser ?");
 			Write.SetColor(ConsoleColor.DarkGray);
-			Write.SpeakLine(" attention à la banqueroute !");
+			Write.SpeakLine("Attention à la banqueroute !");
 			bet = IntPut(Settings.minimumBet, money);
 		}
 	}
