@@ -65,6 +65,7 @@ namespace BadJack
 		public static int deptActiviationAdd = 5;
 		public static double deptIntrestFactor = 0.05;
 		public static int deptIntrestAdd = 0;
+		public static int extraBetFactor = 2;
 		public static List<string> deptMessages = [
 			"Tu veux partir? Tu n'as qu'à pas être PAUVRE !",
 			"Tu dois {0}$ à la banque, par le droit d'abandonner !",
@@ -81,7 +82,7 @@ namespace BadJack
 			};
 
 		public static int WaitSpeakLetter = 10;
-		public static int WaitSpeakSpace = 100;
+		public static int WaitSpeakSpace = 50;
 	}
 
 	class Player
@@ -121,7 +122,7 @@ namespace BadJack
 
 				if (Settings.ifPickableAce)
 				{//else smart for everyone
-					Write.SpeakLine("Il vaut 1 ou 11?");
+					Write.SpeakLine(" Il vaut 1 ou 11?");
 					string? input;
 
 					if (willChoose)
@@ -500,12 +501,12 @@ namespace BadJack
 
 						if (choixJoueur == "O")
 						{
-							Write.SpeakLine("[{0}] : Je pioche", playerHuman.name);
+							Write.SpeakLine("[{0}] Je pioche", playerHuman.name);
 							playerHuman.Draw(cards);
 						}
 						else
 						{
-							Write.SpeakLine("[{0}] : Je m'arrête", playerHuman.name);
+							Write.SpeakLine("[{0}] Je m'arrête", playerHuman.name);
 							stopJoueur = true;
 						}
 					}
@@ -531,12 +532,12 @@ namespace BadJack
 						Write.SetColor(ConsoleColor.Blue);
 						if (playerComputer.score <= 15)
 						{
-							Write.SpeakLine("[{0}] : Je pioche", playerComputer.name);
+							Write.SpeakLine("[{0}] Je pioche", playerComputer.name);
 							playerComputer.Draw(cards);
 						}
 						else
 						{
-							Write.SpeakLine("[{0}] : Je m'arrête", playerComputer.name);
+							Write.SpeakLine("[{0}] Je m'arrête", playerComputer.name);
 							stopOrdi = true;
 						}
 					}
@@ -798,7 +799,7 @@ namespace BadJack
 			Write.SetColor();
 			Write.Speak("Combien veux-tu miser ?");
 			Write.SetColor(ConsoleColor.DarkGray);
-			Write.SpeakLine("Attention à la banqueroute !");
+			Write.SpeakLine(" Attention à la banqueroute !");
 			bet = IntPut(Settings.minimumBet, money);
 		}
 	}
