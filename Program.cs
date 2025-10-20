@@ -52,6 +52,8 @@ namespace BadJack
 			// funny suits
 			new("☺", ConsoleColor.Black, ConsoleColor.Yellow),
 			new("☠", ConsoleColor.Black, ConsoleColor.White),
+			new("💧", ConsoleColor.White, ConsoleColor.Blue),
+			new("$", ConsoleColor.White, ConsoleColor.Green),
 		];
 
 		// settings you can edit in terminal
@@ -384,7 +386,7 @@ namespace BadJack
 
 			// start
 			Write.SetColor(ConsoleColor.White);
-			Write.PrintLine("\n///////////////////\n///  blackjack  ///\n///////////////////\n");
+			Write.PrintLine("\n///////////////////\n///	blackjack	///\n///////////////////\n");
 			Write.SetColor(ConsoleColor.White);
 			Write.SpeakLine("Chacun pioche 2 cartes...");
 
@@ -649,7 +651,7 @@ namespace BadJack
 			Write.Speak("Choisir le nombre de couleurs ");
 			Write.SetColor(ConsoleColor.DarkGray);
 			Write.SpeakLine("({0} par défaut)", Settings.deckColorAmount);
-			Settings.deckColorAmount = IntPut(0, 10, Settings.deckColorAmount);
+			Settings.deckColorAmount = IntPut(0, Settings.globalSuits.Count, Settings.deckColorAmount);
 
 			// pick amount of deck
 			Write.ClearColor();
@@ -819,7 +821,7 @@ namespace BadJack
 				Write.SetColor();
 				Write.Speak("\n");
 				Write.SetColor(ConsoleColor.Magenta);
-				Write.Speak("mais ce n'est pas pour ça que tu va t'arrêter, non ?");
+				Write.SpeakLine("mais ce n'est pas pour ça que tu va t'arrêter, non ?\n");
 			}
 		}
 		
@@ -837,24 +839,61 @@ namespace BadJack
 
 	class Invicible
 	{
+		// settings
 		static Action cancelAction = Game.exitDeptMessage;
-
-		private delegate bool CancelExitDelegate(int eventType);
-		private static CancelExitDelegate _handler = new(CancelExit);
 		private static bool _killDisabled = false;
+
+
+		private static PosixSignalRegistration? _sigTerm;
+		private static PosixSignalRegistration? _sigHup;
+		private static PosixSignalRegistration? _sigInt;
+
+#if WINDOWS
+		// Windows console exit catch
+		private delegate bool ConsoleEventDelegate(int eventType);
+		private static ConsoleEventDelegate? _winHandler;
+
+		[DllImport("Kernel32")]
+		private static extern bool SetConsoleCtrlHandler(ConsoleEventDelegate callback, bool add);
+#endif
 
 		public static void On()
 		{
 			if (_killDisabled) return;
-			Console.CancelKeyPress += CancelKey;
 			_killDisabled = true;
+
+			Console.CancelKeyPress += CancelKey;
+
+#if WINDOWS
+			// Windows-specific: stop console close & logoff
+			_winHandler = new ConsoleEventDelegate(_ => true);
+			SetConsoleCtrlHandler(_winHandler, true);
+#else
+			// Unix-like: stop soft signals kill
+			if (OperatingSystem.IsLinux() || OperatingSystem.IsMacOS())
+			{
+					_sigTerm = PosixSignalRegistration.Create(PosixSignal.SIGTERM, CancelTermination);
+					_sigHup = PosixSignalRegistration.Create(PosixSignal.SIGHUP, CancelTermination);
+					_sigInt = PosixSignalRegistration.Create(PosixSignal.SIGINT, CancelTermination);
+			}
+#endif
+
 		}
 
 		public static void Off()
 		{
 			if (!_killDisabled) return;
-			Console.CancelKeyPress -= CancelKey;
 			_killDisabled = false;
+
+#if WINDOWS
+			if (_winHandler != null) SetConsoleCtrlHandler(_winHandler, false);
+			_winHandler = null;
+#else
+			_sigTerm?.Dispose(); _sigHup?.Dispose(); _sigInt?.Dispose();
+			_sigTerm = _sigHup = _sigInt = null;
+#endif
+
+			Console.CancelKeyPress -= CancelKey;
 		}
 
 		private static void CancelKey(object? sender, ConsoleCancelEventArgs e)
@@ -863,10 +902,10 @@ namespace BadJack
 			e.Cancel = true;
 		}
 
-		private static bool CancelExit(int eventType)
+		private static void CancelTermination(PosixSignalContext ctx)
 		{
 			cancelAction();
-			return true;
+			ctx.Cancel = true;
 		}
 	}
 }
