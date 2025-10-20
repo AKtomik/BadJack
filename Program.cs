@@ -61,11 +61,13 @@ namespace BadJack
 		public static int deckPileAmount = 2;
 
 		// other custom settings
+		public static int moneyObjective = 1000000;
+		public static bool invicibleWhenInDept = true;
 		public static double deptActiviationFactor = 0;
 		public static int deptActiviationAdd = 5;
 		public static double deptIntrestFactor = 0.05;
 		public static int deptIntrestAdd = 0;
-		public static int extraBetFactor = 2;
+		public static double betableByMoneyFactor = 2;
 		public static List<string> deptMessages = [
 			"Tu veux partir? Tu n'as qu'à pas être PAUVRE !",
 			"Tu dois {0}$ à la banque, par le droit d'abandonner !",
@@ -656,30 +658,25 @@ namespace BadJack
 			Write.SpeakLine("({0} par défaut)", Settings.deckPileAmount);
 			Settings.deckPileAmount = IntPut(0, 42, Settings.deckPileAmount);
 
-			// start display
-			Thread.Sleep(666);
-			Write.SetColor(ConsoleColor.Black, ConsoleColor.Yellow);
-			Write.Speak(" Parviendras-tu à être millionaire ? ");
-			Write.SetColor();
-			Write.Speak("\n\n");
-			Thread.Sleep(666);
+			GameObjective();
 		}
 
 		static int money;
 		static int dept = 0;
 		static int bet;
+		static int objectiveState = 0;
 
 		static void onDept(int amout)
 		{
 			dept += amout;
 			money += amout;
-			Invicible.On();
+			if (Settings.invicibleWhenInDept) Invicible.On();
 		}
 		static void offDept()
 		{
 			money -= dept;
 			dept = 0;
-			Invicible.Off();
+			if (Settings.invicibleWhenInDept) Invicible.Off();
 		}
 
 		public static void exitDeptMessage()
@@ -699,6 +696,7 @@ namespace BadJack
 			while (true)
 			{
 				GameDepts();//calculate dept
+				GameObjective();//check if million
 				GameBet();//ask for the bet
 
 				// play
@@ -752,7 +750,7 @@ namespace BadJack
 			if (money < Settings.minimumBet)
 			{
 				deptAction = true;
-				int amount = Settings.deptAmount;
+				int amount = Settings.deptAmount + ((money < 0) ? Math.Abs(money) : 0);
 				bool wasUndepted = dept == 0;
 				onDept(amount);
 				int intrest = (int)(dept * Settings.deptActiviationFactor) + Settings.deptActiviationAdd;
@@ -793,6 +791,38 @@ namespace BadJack
 			}
 		}
 
+		static void GameObjective()
+		{
+			if (objectiveState == 0)
+			{
+				objectiveState++;
+				Write.SetColor(ConsoleColor.Black, ConsoleColor.Yellow);
+				Write.Speak(" Parviendras-tu à être millionaire ? ");
+				Write.SetColor();
+				Write.Speak("\n\n");
+				Thread.Sleep(666);
+			}
+			else if (objectiveState == 1 && money >= Settings.moneyObjective)
+			{
+				objectiveState++;
+
+				Write.SetColor(ConsoleColor.White, ConsoleColor.Yellow);
+				Thread.Sleep(666);
+				Write.Speak(" Tu ");
+				Thread.Sleep(666);
+				Write.Speak("es ");
+				Thread.Sleep(2222);
+				Write.Speak("millionaire");
+				Thread.Sleep(666);
+				Write.Speak(" ! ");
+				Thread.Sleep(2222);
+				Write.SetColor();
+				Write.Speak("\n");
+				Write.SetColor(ConsoleColor.Magenta);
+				Write.Speak("mais ce n'est pas pour ça que tu va t'arrêter, non ?");
+			}
+		}
+		
 		static void GameBet()
 		{
 			// bet
@@ -800,7 +830,8 @@ namespace BadJack
 			Write.Speak("Combien veux-tu miser ?");
 			Write.SetColor(ConsoleColor.DarkGray);
 			Write.SpeakLine(" Attention à la banqueroute !");
-			bet = IntPut(Settings.minimumBet, money);
+			bet = IntPut(Settings.minimumBet, (int)Math.Round(money * Settings.betableByMoneyFactor));
+			//if (bet > money)
 		}
 	}
 
