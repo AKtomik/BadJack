@@ -378,7 +378,7 @@ namespace BadJack
 			// shuffle
 			for (int i = 0; i < Settings.deckColorAmount; i++)
 			{
-				for (int j = 0; j < Settings.deckColorAmount; j++)
+				for (int j = 0; j < Settings.deckPileAmount; j++)
 				{
 					List<Card> cardsColor = Settings.deckComposition.ConvertAll(v => new Card(v, Settings.globalSuits[i]));
 					cards.AddRange(cardsColor);
